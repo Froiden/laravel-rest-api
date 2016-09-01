@@ -432,6 +432,7 @@ class ApiController extends \Illuminate\Routing\Controller
             }
         }
     }
+    
     /**
      * Looks for relations in the requested fields and adds with query for them
      *
