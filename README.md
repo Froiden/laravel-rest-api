@@ -3,6 +3,9 @@ This package provides a powerful Rest API functionality for your Laravel project
 
 **Note**: This package is under development and not recommended for use in production.
 
+## Requirements
+This package has been tested with Laravel v5.2. So, it should work with lower 5.x versions. It will work with v5.3 too.
+
 ## Setup
 1) Add this package to your composer.json
 ```
@@ -52,9 +55,15 @@ class UserController extends ApiController
 regular `Route` class for all other routes.
 
 ```
-ApiRoute::group(['middleware' => ['web', 'auth'], 'prefix' => 'api', 'namespace' => 'App\Http\Controllers'], function () {
-    ApiRoute::resource('user', 'UserController');
-});
+ApiRoute::group(
+	[
+		'middleware' => ['web', 'auth'],
+		'prefix' => 'api',
+		'namespace' => 'App\Http\Controllers'],
+		function () {
+    		ApiRoute::resource('user', 'UserController');
+	}
+);
 ```
 
 Thats it! Your api endpoint `/api/user` will now work. All the REST methods - `index`, `store`, `show`, `put`, `delete` - work out of the box.
