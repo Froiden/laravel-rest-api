@@ -6,6 +6,11 @@
         "laravel/framework": "^5.0"
     },
     "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Froiden\\RestAPI\\": "src"
+        }
+    },
     "authors": [
         {
             "name": "Shashank Jain",
