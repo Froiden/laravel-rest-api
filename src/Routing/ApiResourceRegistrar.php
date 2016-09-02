@@ -17,8 +17,7 @@ class ApiResourceRegistrar extends ResourceRegistrar
     /**
      * Create a new resource registrar instance.
      *
-     * @param  \Illuminate\Routing\Router  $router
-     * @return void
+     * @param ApiRouter|\Illuminate\Routing\Router $router
      */
     public function __construct(ApiRouter $router)
     {

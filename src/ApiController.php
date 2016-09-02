@@ -143,37 +143,20 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     public function index()
     {
-        try {
-            
-            $this->validate();
+        $this->validate();
 
-            $results = $this->parseRequest()
-                ->addIncludes()
-                ->addFilters()
-                ->addOrdering()
-                ->addPaging()
-                ->modify()
-                ->getResults()
-                ->toArray();
+        $results = $this->parseRequest()
+            ->addIncludes()
+            ->addFilters()
+            ->addOrdering()
+            ->addPaging()
+            ->modify()
+            ->getResults()
+            ->toArray();
 
-            $meta = $this->getMetaData();
+        $meta = $this->getMetaData();
 
-            return ApiResponse::make(null, $results, $meta);
-        }
-        catch (ApiException $e) {
-            return ApiResponse::exception($e);
-        }
-        catch (QueryException $e) {
-            if ($e->getCode() == "42S22") {
-                return ApiResponse::exception(new UnknownFieldException(null, $e));
-            }
-            else {
-                return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-            }
-        }
-        catch (\Exception $e) {
-            return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-        }
+        return ApiResponse::make(null, $results, $meta);
     }
 
     /**
@@ -183,208 +166,121 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     public function show($id)
     {
-        try {
-            
-            $this->validate();
+        $this->validate();
 
-            $results = $this->parseRequest()
-                ->addIncludes()
-                ->addKeyConstraint($id)
-                ->modify()
-                ->getResults(true)
-                ->first()
-                ->toArray();
+        $results = $this->parseRequest()
+            ->addIncludes()
+            ->addKeyConstraint($id)
+            ->modify()
+            ->getResults(true)
+            ->first()
+            ->toArray();
 
-            $meta = $this->getMetaData(true);
+        $meta = $this->getMetaData(true);
 
-            return ApiResponse::make(null, $results, $meta);
-        }
-        catch (ApiException $e) {
-            return ApiResponse::exception($e);
-        }
-        catch (QueryException $e) {
-            if ($e->getCode() == "42S22") {
-                return ApiResponse::exception(new UnknownFieldException(null, $e));
-            }
-            else {
-                return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-            }
-        }
-        catch (\Exception $e) {
-            return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-        }
+        return ApiResponse::make(null, $results, $meta);
     }
 
     public function store()
     {
-        try {
-            \DB::beginTransaction();
+        \DB::beginTransaction();
 
-            $this->validate();
+        $this->validate();
 
-            // Create new object
-            /** @var Model $object */
-            $object = new $this->model();
-            $attributes = request()->all();
+        // Create new object
+        /** @var Model $object */
+        $object = new $this->model();
+        $attributes = request()->all();
 
-            $this->populateAndSave($object, $attributes);
+        $this->populateAndSave($object, $attributes);
 
-            $meta = $this->getMetaData(true);
+        $meta = $this->getMetaData(true);
 
-            return ApiResponse::make("Resource created successfully", [ "id" => $object->id ], $meta);
-        }
-        catch (ApiException $e) {
-            return ApiResponse::exception($e);
-        }
-        catch (QueryException $e) {
-            if ($e->getCode() == "42S22") {
-                return ApiResponse::exception(new UnknownFieldException(null, $e));
-            }
-            else {
-                return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-            }
-        }
-        catch (\Exception $e) {
-            return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-        }
-        finally {
-            \DB::commit();
-        }
+        \DB::commit();
+
+        return ApiResponse::make("Resource created successfully", [ "id" => $object->id ], $meta);
     }
 
     public function update($id)
     {
-        try {
-            \DB::beginTransaction();
+        \DB::beginTransaction();
 
-            $this->validate();
+        $this->validate();
 
-            // Get object for update
-            $this->query = call_user_func($this->model . "::query");
-            $this->modify();
+        // Get object for update
+        $this->query = call_user_func($this->model . "::query");
+        $this->modify();
 
-            /** @var Model $object */
-            $object = $this->query->find($id);
+        /** @var Model $object */
+        $object = $this->query->find($id);
 
-            if (!$object) {
-                throw new ResourceNotFoundException();
-            }
-
-            $attributes = request()->all();
-
-            $this->populateAndSave($object, $attributes);
-
-            $meta = $this->getMetaData(true);
-
-            return ApiResponse::make("Resource updated successfully", [ "id" => $object->id ], $meta);
+        if (!$object) {
+            throw new ResourceNotFoundException();
         }
-        catch (ApiException $e) {
-            return ApiResponse::exception($e);
-        }
-        catch (QueryException $e) {
-            if ($e->getCode() == "42S22") {
-                return ApiResponse::exception(new UnknownFieldException(null, $e));
-            }
-            else {
-                return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-            }
-        }
-        catch (\Exception $e) {
-            return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-        }
-        finally {
-            \DB::commit();
-        }
+
+        $attributes = request()->all();
+
+        $this->populateAndSave($object, $attributes);
+
+        $meta = $this->getMetaData(true);
+
+        \DB::commit();
+
+        return ApiResponse::make("Resource updated successfully", [ "id" => $object->id ], $meta);
     }
 
     public function destroy($id)
     {
-        try {
-            \DB::beginTransaction();
-            
-            $this->validate();
+        \DB::beginTransaction();
 
-            // Get object for update
-            $this->query = call_user_func($this->model . "::query");
-            $this->modify();
+        $this->validate();
 
-            /** @var Model $object */
-            $object = $this->query->find($id);
+        // Get object for update
+        $this->query = call_user_func($this->model . "::query");
+        $this->modify();
 
-            if (!$object) {
-                throw new ResourceNotFoundException();
-            }
+        /** @var Model $object */
+        $object = $this->query->find($id);
 
-            $object->delete();
-
-            $meta = $this->getMetaData(true);
-
-            return ApiResponse::make("Resource deleted successfully", null, $meta);
+        if (!$object) {
+            throw new ResourceNotFoundException();
         }
-        catch (ApiException $e) {
-            return ApiResponse::exception($e);
-        }
-        catch (QueryException $e) {
-            if ($e->getCode() == "42S22") {
-                return ApiResponse::exception(new UnknownFieldException(null, $e));
-            }
-            else {
-                return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-            }
-        }
-        catch (\Exception $e) {
-            return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-        }
-        finally {
-            \DB::commit();
-        }
+
+        $object->delete();
+
+        $meta = $this->getMetaData(true);
+
+        \DB::commit();
+
+        return ApiResponse::make("Resource deleted successfully", null, $meta);
     }
 
     public function relation($id, $relation)
     {
-        try {
-            
-            $this->validate();
+        $this->validate();
 
-            // To show relations, we just make a new fields parameter, which requests
-            // only object id, and the relation and get the results like normal index request
+        // To show relations, we just make a new fields parameter, which requests
+        // only object id, and the relation and get the results like normal index request
 
-            $fields = "id," . $relation . ".limit(" . ((request()->limit) ? request()->limit : $this->defaultLimit) .
-                ")" . ((request()->fields) ? "{" .request()->fields . "}" : "");
+        $fields = "id," . $relation . ".limit(" . ((request()->limit) ? request()->limit : $this->defaultLimit) .
+            ")" . ((request()->fields) ? "{" .request()->fields . "}" : "");
 
-            request()->fields = $fields;
+        request()->fields = $fields;
 
-            $results = $this->parseRequest()
-                ->addIncludes()
-                ->addKeyConstraint($id)
-                ->modify()
-                ->getResults(true)
-                ->first()
-                ->toArray();
+        $results = $this->parseRequest()
+            ->addIncludes()
+            ->addKeyConstraint($id)
+            ->modify()
+            ->getResults(true)
+            ->first()
+            ->toArray();
 
-            $data = $results[$relation];
+        $data = $results[$relation];
 
-            $meta = $this->getMetaData(true);
+        $meta = $this->getMetaData(true);
 
-            return ApiResponse::make(null, $data, $meta);
-        }
-        catch (ApiException $e) {
-            return ApiResponse::exception($e);
-        }
-        catch (QueryException $e) {
-            if ($e->getCode() == "42S22") {
-                return ApiResponse::exception(new UnknownFieldException(null, $e));
-            }
-            else {
-                return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-            }
-        }
-        catch (\Exception $e) {
-            return ApiResponse::exception(new ApiException($e->getMessage(), $e));
-        }
-        finally {
-            \DB::commit();
-        }
+        return ApiResponse::make(null, $data, $meta);
+
     }
 
     protected function parseRequest()
@@ -394,7 +290,8 @@ class ApiController extends \Illuminate\Routing\Controller
         return $this;
     }
 
-    protected function validate() {
+    protected function validate()
+    {
 
         if ($this->isIndex()) {
             $requestClass = $this->indexRequest;
@@ -418,19 +315,8 @@ class ApiController extends \Illuminate\Routing\Controller
             $requestClass = null;
         }
 
-        if ($requestClass !== null) {
-            try {
-                app()->make($requestClass);
-            }
-            catch (HttpResponseException $e) {
-                if ($e->getResponse()->getStatusCode() == 403) {
-                    throw new \Froiden\RestAPI\Exceptions\UnauthorizedException();
-                }
-                else {
-                    throw new \Froiden\RestAPI\Exceptions\ValidationException(json_decode($e->getResponse()->getContent(), true));
-                }
-            }
-        }
+        // We just make the class, its validation is called automatically
+        app()->make($requestClass);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Froiden\RestAPI\Providers;
 
+use Froiden\RestAPI\Handlers\ApiExceptionHandler;
 use Froiden\RestAPI\Routing\ApiResourceRegistrar;
 use Froiden\RestAPI\Routing\ApiRouter;
 use Illuminate\Container\Container;
@@ -29,6 +30,7 @@ class ApiServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerRouter();
+        $this->registerExceptionHandler();
 
         $this->mergeConfigFrom(
             __DIR__.'/../api.php', 'api'
@@ -49,6 +51,13 @@ class ApiServiceProvider extends ServiceProvider
             function ($app) {
                 return new ApiResourceRegistrar($app->make(ApiRouter::class));
             }
+        );
+    }
+
+    public function registerExceptionHandler() {
+        $this->app->singleton(
+            \Illuminate\Contracts\Debug\ExceptionHandler::class,
+            ApiExceptionHandler::class
         );
     }
 }

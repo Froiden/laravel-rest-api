@@ -96,11 +96,6 @@ class ApiResponse
      */
     public static function exception(ApiException $exception)
     {
-
-        if (env("APP_ENV") !== "production") {
-            throw  $exception;
-        }
-
         $returnResponse = \Response::make($exception->jsonSerialize());
 
         $returnResponse->setStatusCode($exception->getStatusCode());

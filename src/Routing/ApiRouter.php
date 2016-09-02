@@ -3,6 +3,7 @@
 namespace Froiden\RestAPI\Routing;
 
 use Closure;
+use Froiden\RestAPI\Middleware\ApiMiddleware;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Routing\ResourceRegistrar;
@@ -45,7 +46,11 @@ class ApiRouter extends Router
         // we add it to Laravel's primary route collection
         $routes = app("router")->getRoutes();
 
-        $routes->add($this->createRoute($methods, $uri, $action));
+        // Add ApiMiddleware to all routes
+        $route = $this->createRoute($methods, $uri, $action);
+        $route->middleware(ApiMiddleware::class);
+
+        $routes->add($route);
 
         app("router")->setRoutes($routes);
     }
