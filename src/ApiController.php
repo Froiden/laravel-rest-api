@@ -188,11 +188,10 @@ class ApiController extends \Illuminate\Routing\Controller
         $this->validate();
 
         // Create new object
-        /** @var Model $object */
+        /** @var ApiModel $object */
         $object = new $this->model();
-        $attributes = request()->all();
-
-        $this->populateAndSave($object, $attributes);
+        $object->fill(request()->all());
+        $object->save();
 
         $meta = $this->getMetaData(true);
 
@@ -211,16 +210,15 @@ class ApiController extends \Illuminate\Routing\Controller
         $this->query = call_user_func($this->model . "::query");
         $this->modify();
 
-        /** @var Model $object */
+        /** @var ApiModel $object */
         $object = $this->query->find($id);
 
         if (!$object) {
             throw new ResourceNotFoundException();
         }
 
-        $attributes = request()->all();
-
-        $this->populateAndSave($object, $attributes);
+        $object->fill(request()->all());
+        $object->save();
 
         $meta = $this->getMetaData(true);
 
@@ -744,175 +742,6 @@ class ApiController extends \Illuminate\Routing\Controller
     protected function modifyIndex($query)
     {
         return $query;
-    }
-
-    /**
-     * Populates a given model object with attribute values, calls setters if defined,
-     * and resolves and populates the relations
-     * @param Model $object
-     * @param $attributes
-     * @return Model
-     * @throws ResourceNotFoundException
-     */
-    protected function populateAndSave(Model $object, $attributes)
-    {
-
-        $model = get_class($object);
-
-        // Belongs to many relations that need to be synced after saving
-        $relationsToSync = [];
-
-        foreach ($attributes as $attribute => $value) {
-            if (in_array($attribute, $this->exclude)) {
-                // This field should be excluded
-                continue;
-            }
-
-            // By default a field is saved as it is. To override this
-            // behaviour, user can define a method in form of setPropertyNameAttribute
-
-            $mutator = "set" . Str::studly($attribute) . "Attribute";
-
-            if (method_exists($this, $mutator)) {
-                $value = call_user_func([$this, $mutator], $value);
-            }
-            else if (call_user_func($model . "::relationExists", $attribute) && is_array($value)) {
-                // TODO: testing of relations
-
-                /** @var Relation $relation */
-                $relation = call_user_func([$object, $attribute]);
-
-                if ($relation instanceof HasOne || $relation instanceof BelongsTo) {
-                    if ($relation instanceof HasOne) {
-                        $key = explode(".", $relation->getQualifiedParentKeyName())[1];
-                    }
-                    else {
-                        $key = explode(".", $relation->getQualifiedForeignKey())[1];
-                    }
-
-                    $relatedModel = get_class($relation->getRelated());
-                    $primaryKey = call_user_func([new $relatedModel(), "getKeyName"]);
-
-                    // If key value is not set in request, we create new object
-                    if (!isset($value[$primaryKey])) {
-                        $related = new $relatedModel();
-                    }
-                    else {
-                        // If value is set, we assume it exists and look for it in database
-                        $related = call_user_func($relatedModel . "::find", $value[$primaryKey]);
-
-                        if (!$related) {
-                            // Resource not found
-                            throw new ResourceNotFoundException();
-                        }
-                    }
-
-                    $related = $this->populateAndSave($related, $value);
-
-                    $object->{$key} = $related->getAttribute($primaryKey);
-                }
-                else if ($relation instanceof BelongsToMany) {
-
-                    $relatedModel = get_class($relation->getRelated());
-                    $primaryKey = call_user_func([new $relatedModel(), "getKeyName"]);
-
-                    $relatedIds = [];
-
-                    // Value is an array of related models
-                    foreach ($value as $val) {
-                        // This works same as above, if id field of the related object is set,
-                        // we assume its already there
-                        if (!isset($val[$primaryKey])) {
-                            $related = new $relatedModel();
-
-                            $related = $this->populateAndSave($related, $val);
-
-                            $relatedIds[] = $related->getAttribute($primaryKey);
-                        }
-                        else {
-                            // If value is set, we assume it exists and look for it in database
-                            $related = call_user_func($relatedModel . "::find", $val[$primaryKey]);
-
-                            if (!$related) {
-                                // Resource not found
-                                throw new ResourceNotFoundException();
-                            }
-
-                            // To prevent updating related model every time, we check id model has
-                            // any key other than id. If yes, we assume we need to update, else we do not update
-                            if (count($val) > 1) {
-                                $related = $this->populateAndSave($related, $val);
-                            }
-
-                            $relatedIds[] = $related->getAttribute($primaryKey);
-                        }
-
-                    }
-
-                    $relationsToSync[$attribute] = $relatedIds;
-
-                }
-
-                continue;
-            }
-
-            $object->setAttribute($attribute, $value);
-
-        }
-
-        $object->save();
-
-        // Sync belongsToMany relations
-        foreach ($relationsToSync as $key => $ids) {
-            $object->$key()->sync($ids);
-        }
-
-        // Process hasMany relation. We cannot do this before as we need object's
-        // id, which is not available while creating new object
-        foreach ($attributes as $attribute => $value) {
-            if (call_user_func($model . "::relationExists", $attribute) && is_array($value)) {
-
-                /** @var Relation $relation */
-                $relation = call_user_func([$object, $attribute]);
-
-                if ($relation instanceof HasMany) {
-                    $relatedModel = get_class($relation->getRelated());
-                    $primaryKey = call_user_func([new $relatedModel(), "getKeyName"]);
-                    $parentPrimaryKey = call_user_func([$object, "getKeyName"]);
-
-                    // Value is an array of related models
-                    foreach ($value as $val) {
-                        // This works same as above, if id field of the related object is set,
-                        // we assume its already there
-                        if (!isset($val[$primaryKey])) {
-                            $related = new $relatedModel();
-                            $related->{$primaryKey} = $object->{$parentPrimaryKey};
-                            $this->populateAndSave($related, $val);
-                        }
-                        else {
-                            // If value is set, we assume it exists and look for it in database
-                            $related = call_user_func($relatedModel . "::find", $val[$primaryKey]);
-
-                            if (!$related) {
-                                // Resource not found
-                                throw new ResourceNotFoundException();
-                            }
-
-                            // To prevent updating related model every time, we check id model has
-                            // any key other than id. If yes, we assume we need to update, else we do not update
-                            if (count($val) > 1) {
-                                $related->{$primaryKey} = $object->{$primaryKey};
-                                $this->populateAndSave($related, $val);
-                            }
-                        }
-
-                    }
-
-                }
-            }
-        }
-
-        return $object;
     }
 
     //endregion

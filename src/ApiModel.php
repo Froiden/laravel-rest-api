@@ -2,7 +2,13 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Froiden\RestAPI\Exceptions\ResourceNotFoundException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class ApiModel extends Model
 {
@@ -31,6 +37,8 @@ class ApiModel extends Model
      * @var array
      */
     protected $filterable = ["id"];
+
+    protected $relationAttributes = [];
 
     //region Metadata functions
 
@@ -168,4 +176,138 @@ class ApiModel extends Model
         return Carbon::createFromFormat($this->getDateFormat(), $value);
     }
 
+    /**
+     * Fill the model with an array of attributes.
+     *
+     * @param array $attributes
+     * @param bool $relations If the attributes also contain relations
+     * @return Model
+     */
+    public function fill(array $attributes = [])
+    {
+        $excludes = config("api.excludes");
+
+        foreach ($attributes as $key => $attribute) {
+            // Guarded attributes should be removed
+            if (in_array($attribute, $excludes)) {
+                unset($attributes[$key]);
+            }
+            else if (method_exists($this, $attribute) && is_array($attribute)) {
+                // Its a relation
+                $this->relationAttributes[$key] = $attribute;
+                unset($attributes[$key]);
+            }
+        }
+
+        return parent::fill($attributes);
+    }
+
+    public function save(array $options = [])
+    {
+        // Belongs to relation needs to be set before, because we need the parent's Id
+        foreach ($this->relationAttributes as $key => $relationAttribute) {
+            /** @var Relation $relation */
+            $relation = call_user_func([$this, $key]);
+
+            if ($relation instanceof BelongsTo) {
+                $primaryKey = $relation->getRelated()->getKeyName();
+
+                // If key value is not set in request, we create new object
+                if (!isset($relationAttribute[$primaryKey])) {
+                    $model = $relation->getRelated()->newInstance();
+                }
+                else {
+                    $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
+
+                    if (!$model) {
+                        // Resource not found
+                        throw new ResourceNotFoundException();
+                    }
+                }
+
+                $model->fill($relationAttribute);
+
+                $relation->associate($model);
+
+                unset($this->relationAttribute[$key]);
+            }
+        }
+
+        parent::save($options);
+
+        // Fill all other relations
+        foreach ($this->relationAttributes as $key => $relationAttribute) {
+            /** @var Relation $relation */
+            $relation = call_user_func([$this, $key]);
+            $primaryKey = $relation->getRelated()->getKeyName();
+
+            if ($relation instanceof HasOne || $relation instanceof HasMany) {
+
+                if ($relation instanceof HasOne) {
+                    $relationAttribute = [$relationAttribute];
+                }
+
+                $relationKey = explode(".", $relation->getQualifiedParentKeyName())[1];
+
+                foreach ($relationAttribute as $val) {
+                    if (!isset($val[$primaryKey])) {
+                        $model = $relation->getRelated()->newInstance();
+                        $model->fill($val);
+                        $model->{$relationKey} = $this->getKey();
+                        $model->save();
+                    }
+                    else {
+                        /** @var Model $model */
+                        $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
+
+                        if (!$model) {
+                            // Resource not found
+                            throw new ResourceNotFoundException();
+                        }
+
+                        // To prevent updating related model every time, we check id model has
+                        // any key other than id. If yes, we assume we need to update, else we do not update
+                        if (count($val) > 1) {
+                            $model->fill($val);
+                            $model->{$relationKey} = $this->getKey();
+                            $model->save();
+                        }
+                    }
+                }
+            }
+
+            else if ($relation instanceof BelongsToMany) {
+                $relatedIds = [];
+
+                // Value is an array of related models
+                foreach ($relationAttribute as $val) {
+                    if (!isset($val[$primaryKey])) {
+                        $model = $relation->getRelated()->newInstance();
+                        $model->fill($val);
+                        $model->save();
+                    }
+                    else {
+                        /** @var Model $model */
+                        $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
+
+                        if (!$model) {
+                            // Resource not found
+                            throw new ResourceNotFoundException();
+                        }
+
+                        // To prevent updating related model every time, we check id model has
+                        // any key other than id. If yes, we assume we need to update, else we do not update
+                        if (count($val) > 1) {
+                            $model->fill($val);
+                            $model->save();
+                        }
+                    }
+
+                    $relatedIds[] = $model->getKey();
+                }
+
+                $relation->sync($relatedIds);
+            }
+        }
+    }
 }

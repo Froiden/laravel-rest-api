@@ -17,5 +17,10 @@ return [
      * Add allow cross origin headers. It is recommended by APIs to allow cross origin
      * requests. But, you can disable it.
      */
-    "cors" => true
+    "cors" => true,
+
+    /**
+     * List of fields that should not be considered while saving a model
+     */
+    "excludes" => ["_token"]
 ];
