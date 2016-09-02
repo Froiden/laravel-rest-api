@@ -18,7 +18,7 @@ This package has been tested with Laravel v5.2. So, it should work with lower 5.
 
 3) Add service provider and facade alias in `app.php`
 
-```
+```PHP
 'providers' => [
 	...
     \Froiden\RestAPI\Providers\ApiServiceProvider::class
@@ -35,7 +35,7 @@ This package has been tested with Laravel v5.2. So, it should work with lower 5.
 ## Usage
 1) Extend your eloquent model from `ApiModel` class instead of `Model` class
 
-```
+```PHP
 class User extends ApiModel
 {
    ...
@@ -44,7 +44,7 @@ class User extends ApiModel
 
 2) Extend your controller from `ApiController` class and define the property $model to contain the class name of the User model
 
-```
+```PHP
 class UserController extends ApiController
 {
    protected $model = User::class;
@@ -54,7 +54,7 @@ class UserController extends ApiController
 3) All the routes that will service the api should be defined though `ApiRoute` class. You can continue to use 
 regular `Route` class for all other routes.
 
-```
+```PHP
 ApiRoute::group(
 	[
 		'middleware' => ['web', 'auth'],
@@ -105,7 +105,7 @@ Saving and updating works out of the box, including relations. But, the fields r
 
 If you use form requests for validation, simple store the request class's reference in the form request parameters in your controller:
 
-```
+```PHP
 $indexRequest = UserIndexRequest::class;
 $storeRequest = UserStoreRequest::class;
 ```
@@ -114,7 +114,7 @@ $storeRequest = UserStoreRequest::class;
 
 You can modify the main query just before execution, by defining the corresponding request's modify function. For example, to modify index request query:
 
-```
+```PHP
 public function modifyIndex($query) {
 	return $query->where("status", "active");
 }
