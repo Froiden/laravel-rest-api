@@ -40,6 +40,8 @@ class ApiModel extends Model
 
     protected $relationAttributes = [];
 
+    protected $guarded = [];
+
     //region Metadata functions
 
     /**
@@ -192,7 +194,7 @@ class ApiModel extends Model
             if (in_array($attribute, $excludes)) {
                 unset($attributes[$key]);
             }
-            else if (method_exists($this, $attribute) && is_array($attribute)) {
+            else if (method_exists($this, $key) && is_array($attribute)) {
                 // Its a relation
                 $this->relationAttributes[$key] = $attribute;
                 unset($attributes[$key]);
@@ -226,10 +228,13 @@ class ApiModel extends Model
                 }
 
                 $model->fill($relationAttribute);
+                $model->save();
 
-                $relation->associate($model);
+                $relationKey = $relation->getForeignKey();
 
-                unset($this->relationAttribute[$key]);
+                $this->setAttribute($relationKey, $model->getKey());
+
+                unset($this->relationAttributes[$key]);
             }
         }
 
@@ -258,7 +263,7 @@ class ApiModel extends Model
                     }
                     else {
                         /** @var Model $model */
-                        $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
+                        $model = $relation->getRelated()->find($val[$primaryKey]);
 
                         if (!$model) {
                             // Resource not found
@@ -288,7 +293,7 @@ class ApiModel extends Model
                     }
                     else {
                         /** @var Model $model */
-                        $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
+                        $model = $relation->getRelated()->find($val[$primaryKey]);
 
                         if (!$model) {
                             // Resource not found

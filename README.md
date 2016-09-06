@@ -105,7 +105,7 @@ Apart from operators in the guidelines, one more operator - `lk` - is supported 
 
 ### Saving and Updating
 
-Saving and updating works out of the box, including relations. But, the fields received will be saved as it is. If you want to modify a particular query before its saved, define a setter in controller, just as you define in Eloquent Models: `setStatusAttribute`.
+Saving and updating works out of the box, including relations. But, the fields received will be saved as it is. If you want to modify a particular query before its saved, define a setter/mutator in model: `setStatusAttribute`.
 
 ### Form request
 
