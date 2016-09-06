@@ -7,10 +7,16 @@ This package provides a powerful Rest API functionality for your Laravel project
 This package has been tested with Laravel v5.2. So, it should work with lower 5.x versions. It will work with v5.3 too.
 
 ## Setup
-1) Add this package to your composer.json
+1) Add this package to your composer.json, if you are running **Laravel 5.2 or lower**
 ```
 "require": {
     "froiden/laravel-rest-api": "dev-master"
+}
+```
+For **Laravel 5.3 and above**, add following:
+```
+"require": {
+    "froiden/laravel-rest-api": "dev-laravel5.3"
 }
 ```
 
