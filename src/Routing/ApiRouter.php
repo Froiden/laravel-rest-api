@@ -3,6 +3,7 @@
 namespace Froiden\RestAPI\Routing;
 
 use Closure;
+use Froiden\RestAPI\Exceptions\ApiException;
 use Froiden\RestAPI\Middleware\ApiMiddleware;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -11,6 +12,8 @@ use Illuminate\Routing\Router;
 
 class ApiRouter extends Router
 {
+
+    protected $versions = [];
 
     /**
      * Route a resource to a controller.
@@ -32,6 +35,18 @@ class ApiRouter extends Router
         $registrar->register($name, $controller, $options);
     }
 
+    public function version($versions, Closure $callback)
+    {
+        if (is_string($versions))
+        {
+            $versions = [$versions];
+        }
+
+        $this->versions = $versions;
+
+        call_user_func($callback, $this);
+    }
+
     /**
      * Add a route to the underlying route collection.
      *
@@ -45,13 +60,37 @@ class ApiRouter extends Router
         // We do not keep routes in ApiRouter. Whenever a route is added,
         // we add it to Laravel's primary route collection
         $routes = app("router")->getRoutes();
+        $prefix = config("api.prefix");
+
+        if (empty($this->versions)) {
+            if (($default = config("api.default_version")) !== null) {
+                $versions = [$default];
+            }
+            else {
+                $versions = [null];
+            }
+
+        }
+        else {
+            $versions = $this->versions;
+        }
 
         // Add ApiMiddleware to all routes
         $route = $this->createRoute($methods, $uri, $action);
         $route->middleware(ApiMiddleware::class);
-        $route->prefix(config("api.prefix"));
 
-        $routes->add($route);
+        // Add version prefix
+        foreach ($versions as $version) {
+            if ($version !== null) {
+                $route->prefix($version);
+            }
+
+            if (!empty($prefix)) {
+                $route->prefix($prefix);
+            }
+
+            $routes->add($route);
+        }
 
         app("router")->setRoutes($routes);
     }

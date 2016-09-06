@@ -27,6 +27,10 @@ return [
     /**
      * Prefix for all the routes
      */
+    "prefix" => "api",
 
-    "prefix" => "api"
+    /**
+     * Default version for the API. Set null to disable versions
+     */
+    "default_version" => "v1"
 ];

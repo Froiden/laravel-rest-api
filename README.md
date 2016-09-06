@@ -63,8 +63,7 @@ regular `Route` class for all other routes.
 ```PHP
 ApiRoute::group(
 	[
-		'middleware' => ['web', 'auth'],
-		'prefix' => 'api',
+		'middleware' => ['api'],
 		'namespace' => 'App\Http\Controllers'],
 		function () {
     		ApiRoute::resource('user', 'UserController');
