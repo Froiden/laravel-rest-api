@@ -119,10 +119,10 @@ class ApiModel extends Model
     /**
      * Prepare a date for array / JSON serialization. Override base method in Model to suite our needs
      *
-     * @param  \DateTime  $date
+     * @param  DateTimeInterface  $date
      * @return string
      */
-    protected function serializeDate(\DateTime $date)
+    protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format("c");
     }
