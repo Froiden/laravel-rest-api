@@ -49,6 +49,7 @@ class ApiRouter extends Router
         // Add ApiMiddleware to all routes
         $route = $this->createRoute($methods, $uri, $action);
         $route->middleware(ApiMiddleware::class);
+        $route->prefix(config("api.prefix"));
 
         $routes->add($route);
 
