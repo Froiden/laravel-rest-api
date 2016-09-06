@@ -22,5 +22,11 @@ return [
     /**
      * List of fields that should not be considered while saving a model
      */
-    "excludes" => ["_token"]
+    "excludes" => ["_token"],
+
+    /**
+     * Prefix for all the routes
+     */
+
+    "prefix" => "api"
 ];

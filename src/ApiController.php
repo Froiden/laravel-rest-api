@@ -313,8 +313,10 @@ class ApiController extends \Illuminate\Routing\Controller
             $requestClass = null;
         }
 
-        // We just make the class, its validation is called automatically
-        app()->make($requestClass);
+        if ($requestClass) {
+            // We just make the class, its validation is called automatically
+            app()->make($requestClass);
+        }
     }
 
     /**
