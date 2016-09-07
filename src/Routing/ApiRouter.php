@@ -75,14 +75,16 @@ class ApiRouter extends Router
             $versions = $this->versions;
         }
 
-        // Add ApiMiddleware to all routes
-        $route = $this->createRoute($methods, $uri, $action);
-        $route->middleware(ApiMiddleware::class);
 
         // Add version prefix
         foreach ($versions as $version) {
+            // Add ApiMiddleware to all routes
+            $route = $this->createRoute($methods, $uri, $action);
+            $route->middleware(ApiMiddleware::class);
+
             if ($version !== null) {
                 $route->prefix($version);
+                $route->name("." . $version);
             }
 
             if (!empty($prefix)) {
