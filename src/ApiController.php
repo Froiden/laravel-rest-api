@@ -365,22 +365,22 @@ class ApiController extends \Illuminate\Routing\Controller
                         $innerQuery->selectRaw("@currvalue := " . $q->getForeignKey() . " AS whatever");
                         $innerQuery->orderBy($q->getForeignKey(), ($relation["order"] == "chronological") ? "ASC" : "DESC");
 
-                        $outerQuery = $q->newPivotStatement();
-                        $outerQuery->select($fields);
-                        $outerQuery->from(\DB::raw("(". $innerQuery->toSql() . ") as `$tableName`"))
-                            ->mergeBindings($innerQuery->getQuery())
-                            ->where("rank", "<=", $relation["limit"] + $relation["offset"])
-                            ->where("rank", ">", $relation["offset"]);
+                        // Inner Join causes issues when a relation for parent does not exist.
+                        // So, we change it to right join for this query
+                        $innerQuery->getQuery()->joins[0]->type = "right";
 
-                        $ids = $outerQuery->pluck($primaryKey);
+                        $outerQuery = $q->newPivotStatement();
+                        $outerQuery->from(\DB::raw("(". $innerQuery->toSql() . ") as `$tableName`"))
+                            ->mergeBindings($innerQuery->getQuery());
 
                         $q->select($fields)
-                            ->join(\DB::raw("(" . $outerQuery->toSql() . ") as `outer_query`"), "outer_query.id", "=", $q->getOtherKey())
-                            ->mergeBindings($outerQuery);
-
-                        dd($q->toSql());
-//                            ->whereIn($q->getOtherKey(), $ids);
-
+                            ->join(\DB::raw("(" . $outerQuery->toSql() . ") as `outer_query`"), function ($join) use($q) {
+                                $join->on("outer_query.id", "=", $q->getOtherKey());
+                                $join->on("outer_query.whatever", "=", $q->getForeignKey());
+                            })
+                            ->setBindings(array_merge($q->getQuery()->getBindings(), $outerQuery->getBindings()))
+                            ->where("rank", "<=", $relation["limit"] + $relation["offset"])
+                            ->where("rank", ">", $relation["offset"]);
                     }
                     else {
                         $q->select($fields);
@@ -609,7 +609,7 @@ class ApiController extends \Illuminate\Routing\Controller
             \DB::disableQueryLog();
 
             $meta["queries"] = count($log);
-            $meta["queries_list"] = $log;
+//            $meta["queries_list"] = $log;
         }
 
         return $meta;
