@@ -1,6 +1,7 @@
 <?php namespace Froiden\RestAPI;
 
 use Carbon\Carbon;
+use Closure;
 use DateTimeInterface;
 use Froiden\RestAPI\Exceptions\ResourceNotFoundException;
 use Illuminate\Database\Eloquent\Model;
@@ -121,10 +122,10 @@ class ApiModel extends Model
     /**
      * Prepare a date for array / JSON serialization. Override base method in Model to suite our needs
      *
-     * @param  DateTimeInterface  $date
+     * @param  \DateTime  $date
      * @return string
      */
-    protected function serializeDate(DateTimeInterface $date)
+    protected function serializeDate(\DateTime $date)
     {
         return $date->format("c");
     }
@@ -176,6 +177,35 @@ class ApiModel extends Model
         // the database connection and use that format to create the Carbon object
         // that is returned back out to the developers after we convert it here.
         return Carbon::createFromFormat($this->getDateFormat(), $value);
+    }
+
+    /**
+     * Eagerly load the relationship on a set of models.
+     *
+     * @param  array  $models
+     * @param  string  $name
+     * @param  \Closure  $constraints
+     * @return array
+     */
+    protected function loadRelation(array $models, $name, Closure $constraints)
+    {
+        // First we will "back up" the existing where conditions on the query so we can
+        // add our eager constraints. Then we will merge the wheres that were on the
+        // query back to it in order that any where conditions might be specified.
+        $relation = $this->getRelation($name);
+
+        $relation->addEagerConstraints($models);
+
+        call_user_func($constraints, $relation);
+
+        $models = $relation->initRelation($models, $name);
+
+        // Once we have the results, we just match those back up to their parent models
+        // using the relationship instance. Then we just return the finished arrays
+        // of models which have been eagerly hydrated and are readied for return.
+        $results = $relation->getEager();
+
+        return $relation->match($models, $results, $name);
     }
 
     /**

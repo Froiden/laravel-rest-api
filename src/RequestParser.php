@@ -20,7 +20,7 @@ class RequestParser
     /**
      * Extracts fields parts
      */
-    const FIELD_PARTS_REGEX = "/([^{.]+)(.limit\\(([0-9]+)\\)|.order\\(([A-Za-z]+)\\))*(\\{((?>[^{}]+)|(?R))*\\})?/";
+    const FIELD_PARTS_REGEX = "/([^{.]+)(.limit\\(([0-9]+)\\)|.offset\\(([0-9]+)\\)|.order\\(([A-Za-z]+)\\))*(\\{((?>[^{}]+)|(?R))*\\})?/";
 
     /**
      * Checks if filters are correctly specified
@@ -376,10 +376,11 @@ class RequestParser
                     // This is default laravel behavior
 
                     $limit = ($parts[3][0] == "") ? 10 : $parts[3][0];
-                    $order = ($parts[4][0] == "chronological") ? "chronological" : "reverse_chronological";
+                    $offset = ($parts[4][0] == "") ? 0 : $parts[4][0];
+                    $order = ($parts[5][0] == "chronological") ? "chronological" : "reverse_chronological";
 
-                    if (!empty($parts[6][0])) {
-                        $subFields = explode(",", $parts[6][0]);
+                    if (!empty($parts[7][0])) {
+                        $subFields = explode(",", $parts[7][0]);
                         // This indicates if user specified fields for relation or not
                         $userSpecifiedFields = true;
                     }
@@ -393,6 +394,7 @@ class RequestParser
                     if (!isset($this->relations[$fieldName])) {
                         $this->relations[$fieldName] = [
                             "limit" => $limit,
+                            "offset" => $offset,
                             "order" => $order,
                             "fields" => $subFields,
                             "userSpecifiedFields" => $userSpecifiedFields
@@ -400,6 +402,7 @@ class RequestParser
                     }
                     else {
                         $this->relations[$fieldName]["limit"] = $limit;
+                        $this->relations[$fieldName]["offset"] = $offset;
                         $this->relations[$fieldName]["order"] = $order;
                         $this->relations[$fieldName]["fields"] = array_merge($this->relations[$fieldName]["fields"], $subFields);
                     }
@@ -426,6 +429,7 @@ class RequestParser
                         if (!isset($this->relations[$parent])) {
                             $this->relations[$parent] = [
                                 "limit" => config("api.defaultLimit"),
+                                "offset" => 0,
                                 "order" => "chronological",
                                 "fields" => [$singular . "_id"],
                                 "userSpecifiedFields" => true
