@@ -136,7 +136,7 @@ class ApiModel extends Model
      * @param  mixed  $value
      * @return \Carbon\Carbon
      */
-    protected function asDateTime($value)
+    protected function asDateTime(\DateTimeInterface $value)
     {
         // If this value is already a Carbon instance, we shall just return it as is.
         // This prevents us having to re-instantiate a Carbon instance when we know
