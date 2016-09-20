@@ -1,26 +1,27 @@
 <?php
 
+
 $factory->define(
-    \Froiden\RestAPI\Tests\Models\DummyPhone::class,
+    \Froiden\RestAPI\Tests\Models\DummyUser::class,
     function(Faker\Generator $faker){
         return [
             'name' => $faker->name,
-            'modal_no' => $faker->swiftBicNumber,
+            'email' => $faker->email,
+            'age' =>  $faker->randomDigitNotNull,
+
         ];
     }
 );
 
-
 $factory->define(
-    \Froiden\RestAPI\Tests\Models\DummyUser::class,
+    \Froiden\RestAPI\Tests\Models\DummyPhone::class,
     function(Faker\Generator $faker){
         $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
             base_path() . '/laravel-rest-api/tests/Factories');
         return [
             'name' => $faker->name,
-            'email' => $faker->email,
-            'age' =>  $faker->randomDigitNotNull,
-            'phone_id' => $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyPhone::class)->create()->id,
+            'modal_no' => $faker->swiftBicNumber,
+            'user_id' =>  $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id,
         ];
     }
 );

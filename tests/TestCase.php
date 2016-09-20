@@ -2,11 +2,11 @@
 
 namespace Froiden\RestAPI\Tests;
 
+use Froiden\RestAPI\Facades\ApiRoute;
+use Froiden\RestAPI\Routing\ApiRouter;
 use Froiden\RestAPI\Tests\Controllers\CommentController;
-use Froiden\RestAPI\Tests\Controllers\DummyController;
 use Froiden\RestAPI\Tests\Controllers\PostController;
 use Froiden\RestAPI\Tests\Controllers\UserController;
-use Froiden\RestAPI\Tests\Models\Dummy;
 use Froiden\RestAPI\Tests\Models\DummyComment;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,29 +15,28 @@ use Illuminate\Database\Schema\Blueprint;
  * Class TestCase
  * @package Froiden\RestAPI\Tests
  */
-class TestCase extends \Illuminate\Foundation\Testing\TestCase
+class  TestCase extends \Illuminate\Foundation\Testing\TestCase
 {
     /**
      * The base URL to use while testing the application.
      *
      * @var string
      */
-    protected $baseUrl = 'http://localhost';
+    protected $baseUrl = 'http://localhost/api/v1';
 
     /**
      *
      */
+
     public function setUp()
     {
         parent::setUp();
-
-        $this->app['router']->resource('/dummyUser',  UserController::class);
-        $this->app['router']->resource('/dummyPost',  PostController::class);
-        $this->app['router']->resource('/dummyComment',  CommentController::class);
-
         $this->createTables();
         $this->seedDummyData();
 
+        $this->app[ApiRouter::class]->resource('/dummyUser',  UserController::class);
+        $this->app[ApiRouter::class]->resource('/dummyPost',  PostController::class);
+        $this->app[ApiRouter::class]->resource('/dummyComment',  CommentController::class);
     }
 
     /**
@@ -45,6 +44,7 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
      *
      * @return \Illuminate\Foundation\Application
      */
+
     public function createApplication()
     {
         $app = require __DIR__.'/../../bootstrap/app.php';
@@ -53,7 +53,6 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
 
         return $app;
     }
-
 
     /**
      * This is the description for the function below.
@@ -84,55 +83,54 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
      */
     public function createTables()
     {
-        Schema::dropIfExists('dummyComments');
-        Schema::dropIfExists('dummyPosts');
-        Schema::dropIfExists('dummyUsers');
-        Schema::dropIfExists('dummyPhones');
+        Schema::dropIfExists('dummy_comments');
+        Schema::dropIfExists('dummy_posts');
+        Schema::dropIfExists('dummy_phones');
+        Schema::dropIfExists('dummy_users');
 
-        Schema::create('dummyPhones', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('modal_no');
-            $table->timestamps();
-        });
-
-        Schema::create('dummyUsers', function (Blueprint $table) {
+        Schema::create('dummy_users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
             $table->integer('age');
-            $table->unsignedInteger('phone_id');
-            $table->foreign('phone_id')->references('id')->on('dummyPhones')
+            $table->timestamps();
+        });
+
+        Schema::create('dummy_phones', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('modal_no');
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('dummy_users')
                 ->onUpdate('CASCADE')
                 ->onDelete('CASCADE');
             $table->timestamps();
         });
 
-        Schema::create('dummyPosts', function (Blueprint $table) {
+        Schema::create('dummy_posts', function (Blueprint $table) {
             $table->increments('id');
             $table->string('post');
             $table->unsignedInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('dummyUsers')
+            $table->foreign('user_id')->references('id')->on('dummy_users')
                 ->onUpdate('CASCADE')
                 ->onDelete('CASCADE');
             $table->timestamps();
         });
 
-        Schema::create('dummyComments', function (Blueprint $table) {
+        Schema::create('dummy_comments', function (Blueprint $table) {
             $table->increments('id');
             $table->string('comment');
             $table->unsignedInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('dummyUsers')
+            $table->foreign('user_id')->references('id')->on('dummy_users')
                 ->onUpdate('CASCADE')
                 ->onDelete('CASCADE');
             $table->unsignedInteger('post_id');
-            $table->foreign('post_id')->references('id')->on('dummyPosts')
+            $table->foreign('post_id')->references('id')->on('dummy_posts')
                 ->onUpdate('CASCADE')
                 ->onDelete('CASCADE');
             $table->timestamps();
         });
-
-
     }
+
 }
 

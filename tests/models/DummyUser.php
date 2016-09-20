@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class DummyUser extends ApiModel
 {
 
-    protected $table = 'dummyUsers';
+    protected $table = 'dummy_users';
 
     /**
      * The attributes that are mass assignable.
@@ -17,8 +17,13 @@ class DummyUser extends ApiModel
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'age', 'phone_id',
+        'name', 'email', 'age',
     ];
+
+    protected $filterable = [
+        'name', 'email', 'age',
+    ];
+
 
     protected $dates = [
         'created_at',
@@ -30,15 +35,15 @@ class DummyUser extends ApiModel
      */
     public function phone()
     {
-        return $this->hasOne('Froiden\RestAPI\Tests\Models\DummyPhone');
+        return $this->hasOne('Froiden\RestAPI\Tests\Models\DummyPhone','user_id','id');
     }
 
     /**
      * The posts that belong to the user.
      */
-    public function roles()
+    public function posts()
     {
-        return $this->belongsToMany('Froiden\RestAPI\Tests\Models\DummyPost');
+        return $this->hasMany('Froiden\RestAPI\Tests\Models\DummyPost','user_id','id');
     }
 
     /**
@@ -46,6 +51,6 @@ class DummyUser extends ApiModel
      */
     public function comments()
     {
-        return $this->belongsToMany('Froiden\RestAPI\Tests\Models\DummyComment');
+        return $this->hasMany('Froiden\RestAPI\Tests\Models\DummyComment','user_id','id');
     }
 }

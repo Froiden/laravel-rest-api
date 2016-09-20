@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class DummyPhone extends ApiModel
 {
 
-    protected $table = 'dummyPhones';
+    protected $table = 'dummy_phones';
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +17,7 @@ class DummyPhone extends ApiModel
      * @var array
      */
     protected $fillable = [
-        'name', 'modal_no',
+        'name', 'modal_no','user_id',
     ];
 
     protected $dates = [
