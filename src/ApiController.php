@@ -114,6 +114,8 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     private $parser = null;
 
+    protected $results = null;
+
     public function __construct()
     {
         $this->processingStartTime = microtime(true);
@@ -443,17 +445,30 @@ class ApiController extends \Illuminate\Routing\Controller
     protected function addPaging()
     {
         $limit = $this->parser->getLimit();
-        $page = $this->parser->getPage();
+        $offset = $this->parser->getOffset();
+        $after = $this->parser->getAfter();
+        $before = $this->parser->getBefore();
 
+        if ($offset) {
+            // Offset pagination
+            if ($offset <= 0) {
+                $skip = 0;
+            }
+            else {
+                $skip = $offset;
+            }
 
-        if ($page == 1) {
-            $skip = 0;
+            $this->query->skip($skip);
         }
-        else {
-            $skip = ($page - 1) * $limit;
+        else if ($after) {
+            // Cursor pagination
+            $this->query->where($this->table . "." . $this->primaryKey, ">", $after);
+        }
+        else if ($before) {
+            // Cursor pagination
+            $this->query->where($this->table . "." . $this->primaryKey, "<", $before);
         }
 
-        $this->query->skip($skip);
         $this->query->take($limit);
 
         return $this;
@@ -512,6 +527,8 @@ class ApiController extends \Illuminate\Routing\Controller
 
         $this->processAppends($results);
 
+        $this->results = $results;
+
         return $results;
     }
 
@@ -564,17 +581,19 @@ class ApiController extends \Illuminate\Routing\Controller
         if (!$single) {
             $meta = [
                 "paging" => [
+                    "links" => [
 
-                ],
-                "links" => [
+                    ],
+                    "cursors" => [
 
+                    ]
                 ]
             ];
             $limit = $this->parser->getLimit();
-            $page = $this->parser->getPage();
+            $pageOffset = $this->parser->getOffset();
 
 
-            $current = $page;
+            $current = $pageOffset;
 
             // Remove offset because setting offset does not return
             // result. As, there is single result in count query,
@@ -587,19 +606,17 @@ class ApiController extends \Illuminate\Routing\Controller
 
             $this->query->offset($offset);
 
-            $meta["paging"]["total"] = ceil($totalRecords / $limit);
+            $meta["paging"]["total"] = $totalRecords;
 
-            if ($current < $meta["paging"]["total"]) {
-                $meta["paging"]["next"] = $current + 1;
-                $meta["links"]["next"] = $this->getNextLink();
+            if (($current + $limit) < $meta["paging"]["total"] || $this->parser->getAfter() || $this->parser->getBefore()) {
+                $meta["paging"]["links"]["next"] = $this->getNextLink();
+                $meta["paging"]["cursors"]["after"] = $this->getAfterCursor();
             }
 
-            if ($current > 1) {
-                $meta["paging"]["previous"] = $current - 1;
-                $meta["links"]["previous"] = $this->getPreviousLink();
+            if ($current >= $limit || $this->parser->getAfter() || $this->parser->getBefore()  ) {
+                $meta["paging"]["links"]["previous"] = $this->getPreviousLink();
+                $meta["paging"]["cursors"]["before"] = $this->getBeforeCursor();
             }
-
-            $meta["paging"]["current"] = $current * 1;
         }
 
         $meta["time"] = round(microtime(true) - $this->processingStartTime, 3);
@@ -617,30 +634,64 @@ class ApiController extends \Illuminate\Routing\Controller
 
     protected function getPreviousLink()
     {
-        $current = $this->parser->getPage();
+        $offset = $this->parser->getOffset();
+        $limit = $this->parser->getLimit();
 
-        return request()->url() . "?" .
-            trim(
-                ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
-                ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
-                ((request()->order) ? "&fields=" . urlencode(request()->order) : "") .
-                "&page=" . ($current - 1),
-                "&"
-            );
+        $queryString = ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
+            ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
+            ((request()->order) ? "&fields=" . urlencode(request()->order) : "");
+
+        if ($offset) {
+            // This means user is using offset pagination
+            $queryString .= "&offset=" . ($offset - $limit);
+        }
+        else if ($this->parser->getAfter() || $this->parser->getBefore()) {
+            // This means user is using cursor pagination
+            $queryString .= "&before=" . $this->getBeforeCursor();
+        }
+
+        return request()->url() . "?" . trim($queryString, "&");
     }
 
     protected function getNextLink()
     {
-        $current = $this->parser->getPage();
+        $offset = $this->parser->getOffset();
+        $limit = $this->parser->getLimit();
 
-        return request()->url() . "?" .
-            trim(
-                ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
-                ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
-                ((request()->order) ? "&fields=" . urlencode(request()->order) : "") .
-                "&page=" . ($current + 1),
-                "&"
-            );
+        $queryString = ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
+            ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
+            ((request()->order) ? "&fields=" . urlencode(request()->order) : "");
+
+        if ($offset) {
+            // This means user is using offset pagination
+            $queryString .= "&offset=" . ($offset + $limit);
+        }
+        else if ($this->parser->getAfter() || $this->parser->getBefore()) {
+            // This means user is using cursor pagination
+            $queryString .= "&after=" . $this->getAfterCursor();
+        }
+
+        return request()->url() . "?" . trim($queryString, "&");
+    }
+
+    protected function getAfterCursor()
+    {
+        if ($this->results) {
+            return $this->results->first()->getAttribute($this->primaryKey);
+        }
+        else {
+            return null;
+        }
+    }
+
+    protected function getBeforeCursor()
+    {
+        if ($this->results) {
+            return $this->results->last()->getAttribute($this->primaryKey);
+        }
+        else {
+            return null;
+        }
     }
 
     /**
