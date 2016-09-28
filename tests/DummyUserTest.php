@@ -50,12 +50,11 @@ class DummyUserTest extends TestCase
         $this->assertEquals(200, $response->status());
 
         // Get Phone related to user
-        $response = $this->call('GET', '/dummyUser',
-              [
-                  'fields' => "id,name,email,phone",
-              ]);
-
-        $this->assertEquals(200, $response->status());
+//        $response = $this->call('GET', '/dummyUser',
+//              [
+//                  'fields' => "id,name,email,phone",
+//              ]);
+//        $this->assertEquals(200, $response->status());
 
     }
 
@@ -96,7 +95,13 @@ class DummyUserTest extends TestCase
        // Define order of result
        $response = $this->call('GET', '/dummyUser',
             [
-               'order' => "id asc",
+               'order' => "id desc",
+            ]);
+        $this->assertEquals(200, $response->status());
+
+        $response = $this->call('GET', '/dummyUser',
+            [
+                'order' => "id asc",
             ]);
         $this->assertEquals(200, $response->status());
 
