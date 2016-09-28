@@ -54,7 +54,8 @@ class ApiServiceProvider extends ServiceProvider
         );
     }
 
-    public function registerExceptionHandler() {
+    public function registerExceptionHandler()
+    {
         $this->app->singleton(
             \Illuminate\Contracts\Debug\ExceptionHandler::class,
             ApiExceptionHandler::class

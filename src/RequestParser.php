@@ -80,11 +80,25 @@ class RequestParser
     private $limit = 10;
 
     /**
-     * Page number requested
+     * Offset from where fetching should start
      *
      * @var int
      */
-    private $page = 1;
+    private $offset = 0;
+
+    /**
+     * After cursor
+     *
+     * @var mixed
+     */
+    private $after = null;
+
+    /**
+     * Before cursor
+     *
+     * @var mixed
+     */
+    private $before = null;
 
     /**
      * Ordering string
@@ -158,9 +172,26 @@ class RequestParser
     /**
      * @return int
      */
-    public function getPage()
+    public function getOffset()
     {
-        return $this->page;
+        return $this->offset;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getAfter()
+    {
+        return $this->after;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBefore()
+    {
+        return $this->before;
     }
 
     /**
@@ -214,11 +245,19 @@ class RequestParser
             $this->limit = config("api.defaultLimit");
         }
 
-        if (request()->page) {
-            $this->page = request()->page;
+        if (request()->offset) {
+            $this->offset = request()->offset;
         }
         else {
-            $this->page = 1;
+            $this->offset = 0;
+        }
+
+        if (request()->after) {
+            $this->after = request()->after;
+        }
+
+        if (request()->before) {
+            $this->before = request()->before;
         }
 
         $this->extractOrdering();
