@@ -16,15 +16,32 @@ class PaginationTest extends TestCase
      **/
     public function testPagination()
     {
-        //Use "Limit" to get required number of result
+        //Pagination set offset = "5" or limit ="3"
         $response = $this->call('GET', '/dummyUser',
             [
                 'order' => 'id asc',
                 'offset' => '5',
                 'limit' => '2'
             ]);
-
-        dd($response->getContent());
         $this->assertEquals(200, $response->status());
+
+        //Pagination set offset = "1" or limit ="1"
+        $response = $this->call('GET', '/dummyUser',
+            [
+                'order' => 'id asc',
+                'offset' => '1',
+                'limit' => '1'
+            ]);
+        $this->assertEquals(200, $response->status());
+        
+        //Pagination set offset = "5" or limit ="3"
+        $response = $this->call('GET', '/dummyUser',
+            [
+                'order' => 'id asc',
+                'offset' => '5',
+                'limit' => '-2'
+            ]);
+
+        $this->assertNotEquals(200, $response->status());
     }
 }
