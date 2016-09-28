@@ -549,7 +549,7 @@ class ApiController extends \Illuminate\Routing\Controller
 
                         $this->processAppends($model->$key, $key);
                     }
-                    else {
+                    else if (!empty($model->$key)) {
                         $model->$key->setAppends($appends);
                         $this->processAppends(collect($model->$key), $key);
                     }
