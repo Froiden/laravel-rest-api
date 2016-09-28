@@ -47,20 +47,31 @@ class DummyUserTest extends TestCase
         $this->assertEquals(200, $response->status());
 
         //Todo: Get Phone related to user
-        /*  $response = $this->call('GET', '/dummyUser',
+        /*$response = $this->call('GET', '/dummyUser',
               [
                   'fields' => "id,name,email,phone",
               ]);
-          $this->assertEquals(200, $response->status());*/
+
+        $this->assertEquals(200, $response->status());*/
 
     }
 
     public function testUserIndexWithFilters()
     {
+        $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
+            base_path() . '/laravel-rest-api/tests/Factories');
+        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create();
         //Use "filters" to modify The result
         $response = $this->call('GET', '/dummyUser',
             [
                 'filters' => 'age lt 7',
+            ]);
+        $this->assertEquals(200, $response->status());
+
+        $response = $this->call('GET', '/dummyUser',
+            [
+                'fields' => "id,name",
+                'filters' => 'name lk "%'.$userId->name.'%"',
             ]);
         $this->assertEquals(200, $response->status());
     }
@@ -133,6 +144,7 @@ class DummyUserTest extends TestCase
 
         $response = $this->call('GET', '/dummyUser/'.$userId.'/comments');
 
+        dd($response->getContent());
         $this->assertEquals(200, $response->status());
     }
 
