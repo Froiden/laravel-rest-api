@@ -1,0 +1,19 @@
+language: php
+
+php:
+  - 5.5.9
+  - 5.5
+  - 5.6
+  - 7.0
+  - hhvm
+
+sudo: false
+
+before_script:
+  - cp .env.travis .env
+  - mysql -e 'create database homestead_test;'
+  - composer self-update
+  - composer install --no-interaction
+
+script:
+  - vendor/bin/phpunit
