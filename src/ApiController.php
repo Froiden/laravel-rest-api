@@ -446,28 +446,15 @@ class ApiController extends \Illuminate\Routing\Controller
     {
         $limit = $this->parser->getLimit();
         $offset = $this->parser->getOffset();
-        $after = $this->parser->getAfter();
-        $before = $this->parser->getBefore();
 
-        if ($offset) {
-            // Offset pagination
-            if ($offset <= 0) {
-                $skip = 0;
-            }
-            else {
-                $skip = $offset;
-            }
+        if ($offset <= 0) {
+            $skip = 0;
+        }
+        else {
+            $skip = $offset;
+        }
 
-            $this->query->skip($skip);
-        }
-        else if ($after) {
-            // Cursor pagination
-            $this->query->where($this->table . "." . $this->primaryKey, ">", $after);
-        }
-        else if ($before) {
-            // Cursor pagination
-            $this->query->where($this->table . "." . $this->primaryKey, "<", $before);
-        }
+        $this->query->skip($skip);
 
         $this->query->take($limit);
 
@@ -583,15 +570,11 @@ class ApiController extends \Illuminate\Routing\Controller
                 "paging" => [
                     "links" => [
 
-                    ],
-                    "cursors" => [
-
                     ]
                 ]
             ];
             $limit = $this->parser->getLimit();
             $pageOffset = $this->parser->getOffset();
-
 
             $current = $pageOffset;
 
@@ -608,14 +591,12 @@ class ApiController extends \Illuminate\Routing\Controller
 
             $meta["paging"]["total"] = $totalRecords;
 
-            if (($current + $limit) < $meta["paging"]["total"] || $this->parser->getAfter() || $this->parser->getBefore()) {
+            if (($current + $limit) < $meta["paging"]["total"]) {
                 $meta["paging"]["links"]["next"] = $this->getNextLink();
-                $meta["paging"]["cursors"]["after"] = $this->getAfterCursor();
             }
 
-            if ($current >= $limit || $this->parser->getAfter() || $this->parser->getBefore()  ) {
+            if ($current >= $limit) {
                 $meta["paging"]["links"]["previous"] = $this->getPreviousLink();
-                $meta["paging"]["cursors"]["before"] = $this->getBeforeCursor();
             }
         }
 
@@ -641,14 +622,7 @@ class ApiController extends \Illuminate\Routing\Controller
             ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
             ((request()->order) ? "&fields=" . urlencode(request()->order) : "");
 
-        if ($offset) {
-            // This means user is using offset pagination
-            $queryString .= "&offset=" . ($offset - $limit);
-        }
-        else if ($this->parser->getAfter() || $this->parser->getBefore()) {
-            // This means user is using cursor pagination
-            $queryString .= "&before=" . $this->getBeforeCursor();
-        }
+        $queryString .= "&offset=" . ($offset - $limit);
 
         return request()->url() . "?" . trim($queryString, "&");
     }
@@ -662,36 +636,9 @@ class ApiController extends \Illuminate\Routing\Controller
             ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
             ((request()->order) ? "&fields=" . urlencode(request()->order) : "");
 
-        if ($offset) {
-            // This means user is using offset pagination
-            $queryString .= "&offset=" . ($offset + $limit);
-        }
-        else if ($this->parser->getAfter() || $this->parser->getBefore()) {
-            // This means user is using cursor pagination
-            $queryString .= "&after=" . $this->getAfterCursor();
-        }
+        $queryString .= "&offset=" . ($offset + $limit);
 
         return request()->url() . "?" . trim($queryString, "&");
-    }
-
-    protected function getAfterCursor()
-    {
-        if ($this->results) {
-            return $this->results->first()->getAttribute($this->primaryKey);
-        }
-        else {
-            return null;
-        }
-    }
-
-    protected function getBeforeCursor()
-    {
-        if ($this->results) {
-            return $this->results->last()->getAttribute($this->primaryKey);
-        }
-        else {
-            return null;
-        }
     }
 
     /**
