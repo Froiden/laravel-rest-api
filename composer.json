@@ -10,7 +10,7 @@
     "autoload": {
         "psr-4": {
             "Froiden\\RestAPI\\": "src",
-            "Froiden\\RestAPI\\Tests": "tests"
+            "Froiden\\RestAPI\\Tests\\": "tests"
         }
     },
     "authors": [
