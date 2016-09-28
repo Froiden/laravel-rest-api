@@ -68,6 +68,7 @@ class DummyUserTest extends TestCase
             ]);
         $this->assertEquals(200, $response->status());
 
+        //With 'lk' operator
         $response = $this->call('GET', '/dummyUser',
             [
                 'fields' => "id,name",
@@ -95,6 +96,12 @@ class DummyUserTest extends TestCase
                'order' => "id asc",
             ]);
         $this->assertEquals(200, $response->status());*/
+       // Define order of result
+       $response = $this->call('GET', '/dummyUser',
+            [
+               'order' => "id asc",
+            ]);
+        $this->assertEquals(200, $response->status());
 
     }
 
