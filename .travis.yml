@@ -14,6 +14,7 @@ install:
     Froiden\\\\RestAPI\\\\Providers\\\\ApiServiceProvider::class"
   - export FACADES="
     'ApiRoute' => Froiden\\\\RestAPI\\\\Facades\\\\ApiRoute::class"
+  - export AUTOLOAD="\"Froiden\\\\RestAPI\\\\":\"src\",\"Froiden\\\\RestAPI\\\\Tests\\\\":\"tests\""
   #specify the package to test
   - export PACKAGE_NAME=froiden/laravel-rest-api
   #run the setup script
@@ -23,5 +24,5 @@ install:
 services: mysql
 
 script:
-  - cd laravel
-  - vendor/bin/phpunit
+  - cd laravel/laravel-rest-api
+  - ../vendor/bin/phpunit
