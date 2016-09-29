@@ -7,7 +7,8 @@ git checkout 5.2
 cp .env.example .env
 php artisan key:generate
 composer update --no-interaction
-composer require $PACKAGE_NAME:dev-master --dev
+composer require "$PACKAGE_NAME:dev-master" --dev
+composer require "phpunit/phpunit:^4.8 || ^5.0"
 
 if [[ -v PACKAGE_PROVIDER ]]; then
     echo "$(awk '/'\''providers'\''[^\n]*?\[/ { print; print "'$(sed -e 's/\s*//g' <<<${PACKAGE_PROVIDER})',"; next }1' config/app.php)" > config/app.php
