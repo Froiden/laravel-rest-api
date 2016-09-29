@@ -2,6 +2,7 @@
 
 namespace Froiden\RestAPI;
 
+use Froiden\RestAPI\Exceptions\InvalidLimitException;
 use Froiden\RestAPI\Exceptions\Parse\InvalidFilterDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\InvalidOrderingDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\MaxLimitException;
@@ -87,20 +88,6 @@ class RequestParser
     private $offset = 0;
 
     /**
-     * After cursor
-     *
-     * @var mixed
-     */
-    private $after = null;
-
-    /**
-     * Before cursor
-     *
-     * @var mixed
-     */
-    private $before = null;
-
-    /**
      * Ordering string
      *
      * @var int
@@ -177,23 +164,6 @@ class RequestParser
         return $this->offset;
     }
 
-
-    /**
-     * @return mixed
-     */
-    public function getAfter()
-    {
-        return $this->after;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBefore()
-    {
-        return $this->before;
-    }
-
     /**
      * @return int
      */
@@ -231,8 +201,8 @@ class RequestParser
         $this->extractFilters();
 
         if (request()->limit) {
-            if (request()->limit < -1) {
-                $this->limit = config("api.defaultLimit");
+            if (request()->limit <= 0) {
+                throw new InvalidLimitException();
             }
             else if (request()->limit > config("api.maxLimit")) {
                 throw new MaxLimitException();
@@ -250,14 +220,6 @@ class RequestParser
         }
         else {
             $this->offset = 0;
-        }
-
-        if (request()->after) {
-            $this->after = request()->after;
-        }
-
-        if (request()->before) {
-            $this->before = request()->before;
         }
 
         $this->extractOrdering();
