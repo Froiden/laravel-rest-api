@@ -5,10 +5,23 @@ php:
 
 sudo: false
 
-before_script:
+cache:
+  directories:
+    - laravel
+install:
+  # specify the laravel service providers to insert
+  - export PACKAGE_PROVIDER="
+    Froiden\\\\RestAPI\\\\Providers\\\\ApiServiceProvider::class"
+  - export FACADES="
+    'ApiRoute' => Froiden\\\\RestAPI\\\\Facades\\\\ApiRoute::class"
+  #specify the package to test
+  - export PACKAGE_NAME=froiden/laravel-rest-api
+  #run the setup script
+  - curl -s https://raw.githubusercontent.com/froiden/laravel-rest-api/master/setup.sh | bash
   - mysql -e 'create database homestead_test;'
   - composer self-update
-  - composer install --no-interaction
+
+services: mysql
 
 script:
   - vendor/bin/phpunit
