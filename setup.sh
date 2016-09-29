@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 rm -rf laravel
-composer create-project laravel/laravel laravel "5.2.*"
+composer create-project laravel/laravel:5.2
 cd laravel || exit
 composer install --no-interaction
 composer require "$PACKAGE_NAME:dev-master"
