@@ -6,8 +6,8 @@ cd laravel || exit
 git checkout 5.2
 cp .env.example .env
 php artisan key:generate
-composer update --no-interaction
-composer require "$PACKAGE_NAME:dev-master" --dev
+composer install --no-interaction
+composer require --dev "$PACKAGE_NAME:dev-master"
 composer require "phpunit/phpunit:^4.8 || ^5.0"
 
 if [[ -v PACKAGE_PROVIDER ]]; then
