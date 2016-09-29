@@ -23,4 +23,5 @@ install:
 services: mysql
 
 script:
-  - laravel/vendor/bin/phpunit
+  - cd laravel
+  - vendor/bin/phpunit
