@@ -16,12 +16,11 @@ $factory->define(
 $factory->define(
     \Froiden\RestAPI\Tests\Models\DummyPhone::class,
     function(Faker\Generator $faker){
-        $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
-            base_path() . '/laravel-rest-api/tests/Factories');
+
         return [
             'name' => $faker->name,
             'modal_no' => $faker->swiftBicNumber,
-            'user_id' =>  $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id,
+            'user_id' =>  \Froiden\RestAPI\Tests\Models\DummyUser::all()->random()->id,
         ];
     }
 );
@@ -33,7 +32,7 @@ $factory->define(\Froiden\RestAPI\Tests\Models\DummyPost::class,
             base_path() . '/laravel-rest-api/tests/Factories');
         return [
             'post' => $faker->company,
-            'user_id' => $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id,
+            'user_id' =>  \Froiden\RestAPI\Tests\Models\DummyUser::all()->random()->id,
         ];
     }
 );
@@ -45,8 +44,8 @@ $factory->define(\Froiden\RestAPI\Tests\Models\DummyComment::class,
             base_path() . '/laravel-rest-api/tests/Factories');
         return [
             'comment' => $faker->text,
-            'user_id' => $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id,
-            'post_id' => $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyPost::class)->create()->id,
+            'user_id' =>  \Froiden\RestAPI\Tests\Models\DummyUser::all()->random()->id,
+            'post_id' => \Froiden\RestAPI\Tests\Models\DummyPost::all()->random()->id,
         ];
     }
 );
