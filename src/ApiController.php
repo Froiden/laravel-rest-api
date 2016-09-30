@@ -114,6 +114,8 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     private $parser = null;
 
+    protected $results = null;
+
     public function __construct()
     {
         $this->processingStartTime = microtime(true);
@@ -443,17 +445,17 @@ class ApiController extends \Illuminate\Routing\Controller
     protected function addPaging()
     {
         $limit = $this->parser->getLimit();
-        $page = $this->parser->getPage();
+        $offset = $this->parser->getOffset();
 
-
-        if ($page == 1) {
+        if ($offset <= 0) {
             $skip = 0;
         }
         else {
-            $skip = ($page - 1) * $limit;
+            $skip = $offset;
         }
 
         $this->query->skip($skip);
+
         $this->query->take($limit);
 
         return $this;
@@ -512,6 +514,8 @@ class ApiController extends \Illuminate\Routing\Controller
 
         $this->processAppends($results);
 
+        $this->results = $results;
+
         return $results;
     }
 
@@ -545,7 +549,7 @@ class ApiController extends \Illuminate\Routing\Controller
 
                         $this->processAppends($model->$key, $key);
                     }
-                    else {
+                    else if (!empty($model->$key)) {
                         $model->$key->setAppends($appends);
                         $this->processAppends(collect($model->$key), $key);
                     }
@@ -564,17 +568,15 @@ class ApiController extends \Illuminate\Routing\Controller
         if (!$single) {
             $meta = [
                 "paging" => [
+                    "links" => [
 
-                ],
-                "links" => [
-
+                    ]
                 ]
             ];
             $limit = $this->parser->getLimit();
-            $page = $this->parser->getPage();
+            $pageOffset = $this->parser->getOffset();
 
-
-            $current = $page;
+            $current = $pageOffset;
 
             // Remove offset because setting offset does not return
             // result. As, there is single result in count query,
@@ -587,19 +589,15 @@ class ApiController extends \Illuminate\Routing\Controller
 
             $this->query->offset($offset);
 
-            $meta["paging"]["total"] = ceil($totalRecords / $limit);
+            $meta["paging"]["total"] = $totalRecords;
 
-            if ($current < $meta["paging"]["total"]) {
-                $meta["paging"]["next"] = $current + 1;
-                $meta["links"]["next"] = $this->getNextLink();
+            if (($current + $limit) < $meta["paging"]["total"]) {
+                $meta["paging"]["links"]["next"] = $this->getNextLink();
             }
 
-            if ($current > 1) {
-                $meta["paging"]["previous"] = $current - 1;
-                $meta["links"]["previous"] = $this->getPreviousLink();
+            if ($current >= $limit) {
+                $meta["paging"]["links"]["previous"] = $this->getPreviousLink();
             }
-
-            $meta["paging"]["current"] = $current * 1;
         }
 
         $meta["time"] = round(microtime(true) - $this->processingStartTime, 3);
@@ -617,30 +615,30 @@ class ApiController extends \Illuminate\Routing\Controller
 
     protected function getPreviousLink()
     {
-        $current = $this->parser->getPage();
+        $offset = $this->parser->getOffset();
+        $limit = $this->parser->getLimit();
 
-        return request()->url() . "?" .
-            trim(
-                ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
-                ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
-                ((request()->order) ? "&fields=" . urlencode(request()->order) : "") .
-                "&page=" . ($current - 1),
-                "&"
-            );
+        $queryString = ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
+            ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
+            ((request()->order) ? "&fields=" . urlencode(request()->order) : "");
+
+        $queryString .= "&offset=" . ($offset - $limit);
+
+        return request()->url() . "?" . trim($queryString, "&");
     }
 
     protected function getNextLink()
     {
-        $current = $this->parser->getPage();
+        $offset = $this->parser->getOffset();
+        $limit = $this->parser->getLimit();
 
-        return request()->url() . "?" .
-            trim(
-                ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
-                ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
-                ((request()->order) ? "&fields=" . urlencode(request()->order) : "") .
-                "&page=" . ($current + 1),
-                "&"
-            );
+        $queryString = ((request()->fields) ? "&fields=" . urlencode(request()->fields) : "") .
+            ((request()->filters) ? "&filters=" . urlencode(request()->filters) : "") .
+            ((request()->order) ? "&fields=" . urlencode(request()->order) : "");
+
+        $queryString .= "&offset=" . ($offset + $limit);
+
+        return request()->url() . "?" . trim($queryString, "&");
     }
 
     /**

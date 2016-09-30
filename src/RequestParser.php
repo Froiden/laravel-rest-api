@@ -2,6 +2,7 @@
 
 namespace Froiden\RestAPI;
 
+use Froiden\RestAPI\Exceptions\InvalidLimitException;
 use Froiden\RestAPI\Exceptions\Parse\InvalidFilterDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\InvalidOrderingDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\MaxLimitException;
@@ -80,11 +81,11 @@ class RequestParser
     private $limit = 10;
 
     /**
-     * Page number requested
+     * Offset from where fetching should start
      *
      * @var int
      */
-    private $page = 1;
+    private $offset = 0;
 
     /**
      * Ordering string
@@ -158,9 +159,9 @@ class RequestParser
     /**
      * @return int
      */
-    public function getPage()
+    public function getOffset()
     {
-        return $this->page;
+        return $this->offset;
     }
 
     /**
@@ -200,8 +201,8 @@ class RequestParser
         $this->extractFilters();
 
         if (request()->limit) {
-            if (request()->limit < -1) {
-                $this->limit = config("api.defaultLimit");
+            if (request()->limit <= 0) {
+                throw new InvalidLimitException();
             }
             else if (request()->limit > config("api.maxLimit")) {
                 throw new MaxLimitException();
@@ -214,11 +215,11 @@ class RequestParser
             $this->limit = config("api.defaultLimit");
         }
 
-        if (request()->page) {
-            $this->page = request()->page;
+        if (request()->offset) {
+            $this->offset = request()->offset;
         }
         else {
-            $this->page = 1;
+            $this->offset = 0;
         }
 
         $this->extractOrdering();

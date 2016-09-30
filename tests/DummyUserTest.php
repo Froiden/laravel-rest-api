@@ -1,5 +1,3 @@
-
-
 <?php
 
 use Illuminate\Foundation\Testing\WithoutMiddleware;
@@ -9,7 +7,6 @@ use Froiden\RestAPI\Tests\TestCase;
 
 class DummyUserTest extends TestCase
 {
-
     /**
      * Test User Index Page.
      *
@@ -18,7 +15,7 @@ class DummyUserTest extends TestCase
 
     public function testUserIndex()
     {
-        //Send Simple Index Request
+        // Send Simple Index Request
         $response = $this->call('GET', '/dummyUser');
 
         $this->assertEquals(200, $response->status());
@@ -31,28 +28,39 @@ class DummyUserTest extends TestCase
                 'fields' => "id,name,email,age",
             ]);
         $this->assertEquals(200, $response->status());
+    }
 
-        //Get Data With Related Post
+    public function testOne_to_One_Relation_with_Fields_parameter()
+    {
+
+        $response = $this->call('GET', '/dummyUser',
+            [
+                'fields' => "id,name,email,phone",
+            ]);
+        $responseContent = json_decode($response->getContent(),true);
+        $this->assertNotNull($responseContent["data"]["0"]["phone"]);
+        $this->assertEquals(200, $response->status());
+    }
+
+    public function testOne_to_Manny_Relation_with_Fields_parameter()
+    {
+        // Get Data With Related Post
         $response = $this->call('GET', '/dummyUser',
             [
                 'fields' => "id,name,email,posts",
             ]);
+        $responseContent = json_decode($response->getContent(),true);
+        $this->assertNotEmpty($responseContent["data"]["0"]["posts"]);
         $this->assertEquals(200, $response->status());
 
-        //Get Data With User Comments on Post
+        // Get Data With User Comments on Post
         $response = $this->call('GET', '/dummyUser',
             [
                 'fields' => "id,name,email,comments",
             ]);
+        $responseContent = json_decode($response->getContent(),true);
+        $this->assertNotEmpty($responseContent["data"]["0"]["comments"]);
         $this->assertEquals(200, $response->status());
-
-        //Todo: Get Phone related to user
-        /*$response = $this->call('GET', '/dummyUser',
-              [
-                  'fields' => "id,name,email,phone",
-              ]);
-
-        $this->assertEquals(200, $response->status());*/
 
     }
 
@@ -60,15 +68,17 @@ class DummyUserTest extends TestCase
     {
         $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
             base_path() . '/laravel-rest-api/tests/Factories');
-        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create();
-        //Use "filters" to modify The result
+
+        $userId = $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create();
+
+        // Use "filters" to modify The result
         $response = $this->call('GET', '/dummyUser',
             [
                 'filters' => 'age lt 7',
             ]);
         $this->assertEquals(200, $response->status());
 
-        //With 'lk' operator
+        // With 'lk' operator
         $response = $this->call('GET', '/dummyUser',
             [
                 'fields' => "id,name",
@@ -79,7 +89,7 @@ class DummyUserTest extends TestCase
 
     public function testUserIndexWithLimit()
     {
-        //Use "Limit" to get required number of result
+        // Use "Limit" to get required number of result
         $response = $this->call('GET', '/dummyUser',
             [
                 'limit' => '5',
@@ -90,16 +100,16 @@ class DummyUserTest extends TestCase
 
     public function testUserIndexWithsOrderParameter()
     {
-        //Todo: Define order of result
-/*       $response = $this->call('GET', '/dummyUser',
+        // Define order of result
+        $response = $this->call('GET', '/dummyUser',
             [
-               'order' => "id asc",
+               'order' => "id desc",
             ]);
-        $this->assertEquals(200, $response->status());*/
-       // Define order of result
-       $response = $this->call('GET', '/dummyUser',
+        $this->assertEquals(200, $response->status());
+
+        $response = $this->call('GET', '/dummyUser',
             [
-               'order' => "id asc",
+                'order' => "id asc",
             ]);
         $this->assertEquals(200, $response->status());
 
@@ -107,100 +117,80 @@ class DummyUserTest extends TestCase
 
     public function testUserShowFunction()
     {
-        //region Insert Dummy Data
-        $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
-            base_path() . '/laravel-rest-api/tests/Factories');
-        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id;
-
-        $post = $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyPost::class)->create([
-            'post' => "dummy POst",
-            'user_id' => $userId,
-        ]);
-
-        $comment=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyComment::class)->create([
-            'comment' => "Dummy Comments",
-            'user_id' => $userId,
-            'post_id' => $post->id,
-        ]);
-        //endregion
-
-        $response = $this->call('GET', '/dummyUser/'.$userId);
+        $user = \Froiden\RestAPI\Tests\Models\DummyUser::all()->random();
+        $response = $this->call('GET', '/dummyUser/'.$user->id);
 
         $this->assertEquals(200, $response->status());
     }
 
-
     public function testShowCommentsByUserRelationsEndpoint()
     {
-        //region Insert Dummy Data
+        $user = \Froiden\RestAPI\Tests\Models\DummyUser::all()->random();
+
+        $post = \Froiden\RestAPI\Tests\Models\DummyPost::all()->random();
+
         $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
             base_path() . '/laravel-rest-api/tests/Factories');
-        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id;
 
-        $post = $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyPost::class)->create([
-            'post' => "dummy POst",
-            'user_id' => $userId,
-        ]);
-
-        $comment=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyComment::class)->create([
+        $comment = $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyComment::class)->create([
             'comment' => "Dummy Comments",
-            'user_id' => $userId,
-            'post_id' => $post->id,
+            'user_id' => $user->id,
+            'post_id' => $post->id
         ]);
-        //endregion
+        $response = $this->call('GET', '/dummyUser/'.$user->id.'/comments');
 
-        $response = $this->call('GET', '/dummyUser/'.$userId.'/comments');
+        $responseContent = json_decode($response->getContent(),true);
+
+        $this->assertNotEmpty($responseContent["data"]);
+
         $this->assertEquals(200, $response->status());
     }
 
     public function testShowPostsByUserRelationsEndpoint()
     {
         //region Insert Dummy Data
+        $user = \Froiden\RestAPI\Tests\Models\DummyUser::all()->random();
+
         $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
             base_path() . '/laravel-rest-api/tests/Factories');
-        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id;
 
-        $post = $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyPost::class)->create([
+        $createFactory->of(\Froiden\RestAPI\Tests\Models\DummyPost::class)->create([
             'post' => "dummy POst",
-            'user_id' => $userId,
+            'user_id' => $user->id,
         ]);
 
-        $comment=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyComment::class)->create([
-            'comment' => "Dummy Comments",
-            'user_id' => $userId,
-            'post_id' => $post->id,
-        ]);
         //endregion
 
-        $response = $this->call('GET','/dummyUser/'.$userId.'/posts');
+        $response = $this->call('GET', '/dummyUser/'.$user->id.'/posts');
+
+        $responseContent = json_decode($response->getContent(),true);
+
+        $this->assertNotEmpty($responseContent["data"]);
 
         $this->assertEquals(200, $response->status());
     }
 
-    public function testUserStoreFunction()
+    public function testUserStore()
     {
         $response = $this->call('POST', '/dummyUser',
             [
                 'name' => "Dummy User",
                 'email' => "dummy@test.com",
-                'age' =>  25,
+                'age' => 25
             ]);
         $this->assertEquals(200, $response->status());
 
     }
 
-    public function testUserUpdateFunction()
+    public function testUserUpdate()
     {
-        $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
-            base_path() . '/laravel-rest-api/tests/Factories');
+        $user = \Froiden\RestAPI\Tests\Models\DummyUser::all()->random();
 
-        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id;
-
-        $response = $this->call('PUT', '/dummyUser/'.$userId,
+        $response = $this->call('PUT', '/dummyUser/'.$user->id,
             [
                 'name' => "Dummy1 User",
                 'email' => "dummy2@test.com",
-                'age' =>  25,
+                'age' => 25,
             ]);
         $this->assertEquals(200, $response->status());
     }
@@ -212,13 +202,11 @@ class DummyUserTest extends TestCase
      */
     public function testUserDelete()
     {
-        $createFactory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
-            base_path() . '/laravel-rest-api/tests/Factories');
+        $user = \Froiden\RestAPI\Tests\Models\DummyUser::all()->random();
 
-        $userId=$createFactory->of(\Froiden\RestAPI\Tests\Models\DummyUser::class)->create()->id;
-
-        $response = $this->call('DELETE', '/dummyUser/'.$userId);
+        $response = $this->call('DELETE', '/dummyUser/'.$user->id);
 
         $this->assertEquals(200, $response->status());
     }
+
 }

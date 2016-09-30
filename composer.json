@@ -3,12 +3,14 @@
     "description": "Powerful RestAPI plugin for Laravel",
     "type": "library",
     "require": {
-        "laravel/framework": "5.3"
+        "laravel/framework": "<5.3 >=5.0",
+        "phpunit/phpunit": "^4.8 || ^5.0"
     },
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Froiden\\RestAPI\\": "src"
+            "Froiden\\RestAPI\\": "src",
+            "Froiden\\RestAPI\\Tests\\": "tests"
         }
     },
     "authors": [
@@ -18,3 +20,4 @@
         }
     ]
 }
+
