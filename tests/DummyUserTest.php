@@ -150,8 +150,6 @@ class DummyUserTest extends TestCase
         //endregion
 
         $response = $this->call('GET', '/dummyUser/'.$userId.'/comments');
-
-        dd($response->getContent());
         $this->assertEquals(200, $response->status());
     }
 
