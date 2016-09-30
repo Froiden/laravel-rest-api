@@ -33,7 +33,7 @@ class PaginationTest extends TestCase
                 'limit' => '1'
             ]);
         $this->assertEquals(200, $response->status());
-        
+
         //Pagination set offset = "5" or limit ="3"
         $response = $this->call('GET', '/dummyUser',
             [
@@ -41,7 +41,6 @@ class PaginationTest extends TestCase
                 'offset' => '5',
                 'limit' => '-2'
             ]);
-
         $this->assertNotEquals(200, $response->status());
     }
 }

@@ -8,6 +8,9 @@ use Froiden\RestAPI\Tests\Controllers\CommentController;
 use Froiden\RestAPI\Tests\Controllers\PostController;
 use Froiden\RestAPI\Tests\Controllers\UserController;
 use Froiden\RestAPI\Tests\Models\DummyComment;
+use Froiden\RestAPI\Tests\Models\DummyPhone;
+use Froiden\RestAPI\Tests\Models\DummyPost;
+use Froiden\RestAPI\Tests\Models\DummyUser;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -68,7 +71,26 @@ class  TestCase extends \Illuminate\Foundation\Testing\TestCase
         \DB::beginTransaction();
         for($i=0; $i<10; $i++)
         {
-            $users[]=$factory->of(DummyComment::class)->create();
+            $user=$factory->of(DummyUser::class)->create();
+            $factory->of(DummyPhone::class)->create(
+                [
+                    'user_id' => $user->id
+                ]
+            );
+
+            $post=$factory->of(DummyPost::class)->create(
+                [
+                    'user_id' => $user->id,
+                ]
+            );
+
+            $factory->of(DummyComment::class)->create(
+                [
+                    'post_id' => $post->id,
+                    'user_id' => $user->id,
+                ]
+            );
+
         }
         \DB::commit();
 
