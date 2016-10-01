@@ -4,7 +4,7 @@ if [ ! -f "laravel/composer.json" ] ; then
     rm -rf laravel
     git clone https://github.com/laravel/laravel
     cd laravel || exit
-    git checkout 5.2
+#    git checkout 5.2
     composer install --no-interaction
     cp .env.example .env
     php artisan key:generate
@@ -29,5 +29,6 @@ fi
 
 rm -rf laravel-rest-api
 git clone https://github.com/Froiden/laravel-rest-api
+git checkout laravel5.3
 composer du
 cd .. || exit
