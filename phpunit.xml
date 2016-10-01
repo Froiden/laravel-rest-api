@@ -25,10 +25,6 @@
         <env name="APP_ENV" value="testing"/>
         <env name="APP_KEY" value="base64:nWnQmP61oethzd7XaHWzbJmoOnlMlstOsKuFFgF9fZY="/>
         <env name="APP_URL" value="http://localhost"/>
-        <env name="DB_HOST" value="localhost"/>
-        <env name="DB_DATABASE" value="homestead_test"/>
-        <env name="DB_USERNAME" value="root"/>
-        <env name="DB_PASSWORD" value=""/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
