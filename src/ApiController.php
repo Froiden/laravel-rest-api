@@ -4,10 +4,14 @@ namespace Froiden\RestAPI;
 
 use Froiden\RestAPI\Exceptions\Parse\NotAllowedToFilterOnThisFieldException;
 use Froiden\RestAPI\Exceptions\ResourceNotFoundException;
+use Froiden\RestAPI\Tests\Models\DummyUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -318,6 +322,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function addIncludes()
     {
+
         $relations = $this->parser->getRelations();
 
         if (!empty($relations)) {
@@ -385,7 +390,26 @@ class ApiController extends \Illuminate\Routing\Controller
                             ->where("rank", ">", $relation["offset"]);
                     }
                     else {
+                        // We need to select foreign key so that Laravel can match to which records these
+                        // need to be attached
+                        if ($q instanceof BelongsTo) {
+                            $fields[] = $q->getForeignKey();
+
+                            // This will be used to hide this foreign key field
+                            // int the processAppends function later
+                            $relations[$key]["foreign"] = $q->getForeignKey();
+                        }
+                        else if ($q instanceof HasOne) {
+                            $fields[] = $q->getForeignKey();
+                            $relations[$key]["foreign"] = $q->getForeignKey();
+                        }
+                        else if ($q instanceof HasMany) {
+                            $fields[] = $q->getForeignKey();
+                            $relations[$key]["foreign"] = $q->getForeignKey();
+                        }
+
                         $q->select($fields);
+
                         $q->take($relation["limit"]);
 
                         if ($relation["offset"] !== 0) {
@@ -541,16 +565,33 @@ class ApiController extends \Illuminate\Routing\Controller
                 $appends = $relations[$relationName]["appends"];
                 $appends = array_intersect($appends, $relations[$relationName]["fields"]);
 
+                if (isset($relations[$relationName]["foreign"])) {
+                    $foreign = explode(".", $relations[$relationName]["foreign"])[1];
+                }
+                else {
+                    $foreign = null;
+                }
+
                 foreach ($models as $model) {
                     if ($model->$key instanceof Collection) {
-                        $model->{$key}->each(function ($item, $key) use($appends) {
+                        $model->{$key}->each(function ($item, $key) use($appends, $foreign) {
                             $item->setAppends($appends);
+
+                            // Hide the foreign key fields
+                            if (!empty($foreign)) {
+                                $item->addHidden($foreign);
+                            }
                         });
 
                         $this->processAppends($model->$key, $key);
                     }
                     else if (!empty($model->$key)) {
                         $model->$key->setAppends($appends);
+
+                        if (!empty($foreign)) {
+                            $model->$key->addHidden($foreign);
+                        }
+
                         $this->processAppends(collect($model->$key), $key);
                     }
                 }
