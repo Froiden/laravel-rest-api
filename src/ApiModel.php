@@ -125,7 +125,7 @@ class ApiModel extends Model
      * @param  \DateTime  $date
      * @return string
      */
-    protected function serializeDate(\DateTime $date)
+    protected function serializeDate(\DateTimeInterface $date)
     {
         return $date->format("c");
     }
