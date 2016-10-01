@@ -36,4 +36,5 @@ class DummyPost extends ApiModel
     {
         return $this->hasMany('Froiden\RestAPI\Tests\Models\DummyComment');
     }
+
 }

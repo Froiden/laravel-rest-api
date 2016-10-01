@@ -30,26 +30,26 @@ class DummyUserTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-    public function testOne_to_One_Relation_with_Fields_parameter()
+    public function testOneToOneRelationWithFieldsParameter()
     {
 
         $response = $this->call('GET', '/dummyUser',
             [
                 'fields' => "id,name,email,phone",
             ]);
-        $responseContent = json_decode($response->getContent(),true);
+        $responseContent = json_decode($response->getContent(), true);
         $this->assertNotNull($responseContent["data"]["0"]["phone"]);
         $this->assertEquals(200, $response->status());
     }
 
-    public function testOne_to_Manny_Relation_with_Fields_parameter()
+    public function testOneToManyRelationWithFieldsParameter()
     {
         // Get Data With Related Post
         $response = $this->call('GET', '/dummyUser',
             [
                 'fields' => "id,name,email,posts",
             ]);
-        $responseContent = json_decode($response->getContent(),true);
+        $responseContent = json_decode($response->getContent(), true);
         $this->assertNotEmpty($responseContent["data"]["0"]["posts"]);
         $this->assertEquals(200, $response->status());
 
@@ -58,7 +58,7 @@ class DummyUserTest extends TestCase
             [
                 'fields' => "id,name,email,comments",
             ]);
-        $responseContent = json_decode($response->getContent(),true);
+        $responseContent = json_decode($response->getContent(), true);
         $this->assertNotEmpty($responseContent["data"]["0"]["comments"]);
         $this->assertEquals(200, $response->status());
 
@@ -139,7 +139,7 @@ class DummyUserTest extends TestCase
         ]);
         $response = $this->call('GET', '/dummyUser/'.$user->id.'/comments');
 
-        $responseContent = json_decode($response->getContent(),true);
+        $responseContent = json_decode($response->getContent(), true);
 
         $this->assertNotEmpty($responseContent["data"]);
 
@@ -163,7 +163,7 @@ class DummyUserTest extends TestCase
 
         $response = $this->call('GET', '/dummyUser/'.$user->id.'/posts');
 
-        $responseContent = json_decode($response->getContent(),true);
+        $responseContent = json_decode($response->getContent(), true);
 
         $this->assertNotEmpty($responseContent["data"]);
 

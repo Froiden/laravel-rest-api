@@ -30,8 +30,6 @@ class DummyComment extends ApiModel
         'updated_at'
     ];
 
-
-
     /**
      * Get the post that owns the comment.
      */

@@ -37,9 +37,9 @@ class  TestCase extends \Illuminate\Foundation\Testing\TestCase
         $this->createTables();
         $this->seedDummyData();
 
-        $this->app[ApiRouter::class]->resource('/dummyUser',  UserController::class);
-        $this->app[ApiRouter::class]->resource('/dummyPost',  PostController::class);
-        $this->app[ApiRouter::class]->resource('/dummyComment',  CommentController::class);
+        $this->app[ApiRouter::class]->resource('/dummyUser', UserController::class);
+        $this->app[ApiRouter::class]->resource('/dummyPost', PostController::class);
+        $this->app[ApiRouter::class]->resource('/dummyComment', CommentController::class);
     }
 
     /**
@@ -69,16 +69,17 @@ class  TestCase extends \Illuminate\Foundation\Testing\TestCase
         $factory = \Illuminate\Database\Eloquent\Factory::construct(\Faker\Factory::create(),
             base_path() . '/laravel-rest-api/tests/Factories');
         \DB::beginTransaction();
-        for($i=0; $i<10; $i++)
+
+        for($i = 0; $i < 10; $i++)
         {
-            $user=$factory->of(DummyUser::class)->create();
+            $user = $factory->of(DummyUser::class)->create();
             $factory->of(DummyPhone::class)->create(
                 [
                     'user_id' => $user->id
                 ]
             );
 
-            $post=$factory->of(DummyPost::class)->create(
+            $post = $factory->of(DummyPost::class)->create(
                 [
                     'user_id' => $user->id,
                 ]
@@ -92,6 +93,7 @@ class  TestCase extends \Illuminate\Foundation\Testing\TestCase
             );
 
         }
+
         \DB::commit();
 
     }

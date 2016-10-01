@@ -16,7 +16,7 @@ class PaginationTest extends TestCase
      **/
     public function testPagination()
     {
-        //Pagination set offset = "5" or limit ="3"
+        // Pagination set offset = "5" or limit ="3"
         $response = $this->call('GET', '/dummyUser',
             [
                 'order' => 'id asc',
@@ -25,7 +25,7 @@ class PaginationTest extends TestCase
             ]);
         $this->assertEquals(200, $response->status());
 
-        //Pagination set offset = "1" or limit ="1"
+        // Pagination set offset = "1" or limit ="1"
         $response = $this->call('GET', '/dummyUser',
             [
                 'order' => 'id asc',
@@ -34,7 +34,7 @@ class PaginationTest extends TestCase
             ]);
         $this->assertEquals(200, $response->status());
 
-        //Pagination set offset = "5" or limit ="3"
+        // Pagination set offset = "5" or limit ="3"
         $response = $this->call('GET', '/dummyUser',
             [
                 'order' => 'id asc',
