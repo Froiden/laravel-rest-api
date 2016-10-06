@@ -257,7 +257,8 @@ class ApiController extends \Illuminate\Routing\Controller
         // only object id, and the relation and get the results like normal index request
 
         $fields = "id," . $relation . ".limit(" . ((request()->limit) ? request()->limit : $this->defaultLimit) .
-            ")" . ((request()->fields) ? "{" .request()->fields . "}" : "");
+            ")" . ((request()->offset) ?  ".offset(" . request()->offset . ")": "" )
+            . ((request()->fields) ? "{" .request()->fields . "}" : "");
 
         request()->fields = $fields;
 
