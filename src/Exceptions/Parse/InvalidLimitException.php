@@ -1,6 +1,9 @@
 <?php
 
-namespace Froiden\RestAPI\Exceptions;
+namespace Froiden\RestAPI\Exceptions\Parse;
+
+use Froiden\RestAPI\Exceptions\ApiException;
+use Froiden\RestAPI\Exceptions\ErrorCodes;
 
 class InvalidLimitException extends ApiException
 {

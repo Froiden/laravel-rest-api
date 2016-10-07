@@ -2,7 +2,7 @@
 
 namespace Froiden\RestAPI;
 
-use Froiden\RestAPI\Exceptions\InvalidLimitException;
+use Froiden\RestAPI\Exceptions\Parse\InvalidLimitException;
 use Froiden\RestAPI\Exceptions\Parse\InvalidFilterDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\InvalidOrderingDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\MaxLimitException;
