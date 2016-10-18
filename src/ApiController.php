@@ -394,14 +394,14 @@ class ApiController extends \Illuminate\Routing\Controller
                         // We need to select foreign key so that Laravel can match to which records these
                         // need to be attached
                         if ($q instanceof BelongsTo) {
-                            $fields[] = $q->getForeignKey();
-
-                            // This will be used to hide this foreign key field
-                            // int the processAppends function later
-                            $relations[$key]["foreign"] = $q->getForeignKey();
+                            $fields[] = $q->getOtherKey();
+//                            $relations[$key]["foreign"] = $q->getOtherKey();
                         }
                         else if ($q instanceof HasOne) {
                             $fields[] = $q->getForeignKey();
+
+                            // This will be used to hide this foreign key field
+                            // in the processAppends function later
                             $relations[$key]["foreign"] = $q->getForeignKey();
                         }
                         else if ($q instanceof HasMany) {
