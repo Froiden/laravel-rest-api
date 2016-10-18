@@ -124,8 +124,11 @@ class ApiController extends \Illuminate\Routing\Controller
     {
         $this->processingStartTime = microtime(true);
 
-        $this->primaryKey = call_user_func([new $this->model(), "getKeyName"]);
-        $this->table = call_user_func([new $this->model(), "getTable"]);
+        if ($this->model) {
+            // Only if model is defined. Otherwise, this is a normal controller
+            $this->primaryKey = call_user_func([new $this->model(), "getKeyName"]);
+            $this->table = call_user_func([new $this->model(), "getTable"]);
+        }
 
         if (env("APP_DEBUG") == true) {
             \DB::enableQueryLog();
@@ -394,14 +397,14 @@ class ApiController extends \Illuminate\Routing\Controller
                         // We need to select foreign key so that Laravel can match to which records these
                         // need to be attached
                         if ($q instanceof BelongsTo) {
-                            $fields[] = $q->getForeignKey();
-
-                            // This will be used to hide this foreign key field
-                            // int the processAppends function later
-                            $relations[$key]["foreign"] = $q->getForeignKey();
+                            $fields[] = $q->getOtherKey();
+//                            $relations[$key]["foreign"] = $q->getOtherKey();
                         }
                         else if ($q instanceof HasOne) {
                             $fields[] = $q->getForeignKey();
+
+                            // This will be used to hide this foreign key field
+                            // in the processAppends function later
                             $relations[$key]["foreign"] = $q->getForeignKey();
                         }
                         else if ($q instanceof HasMany) {
