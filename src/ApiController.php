@@ -124,8 +124,11 @@ class ApiController extends \Illuminate\Routing\Controller
     {
         $this->processingStartTime = microtime(true);
 
-        $this->primaryKey = call_user_func([new $this->model(), "getKeyName"]);
-        $this->table = call_user_func([new $this->model(), "getTable"]);
+        if ($this->model) {
+            // Only if model is defined. Otherwise, this is a normal controller
+            $this->primaryKey = call_user_func([new $this->model(), "getKeyName"]);
+            $this->table = call_user_func([new $this->model(), "getTable"]);
+        }
 
         if (env("APP_DEBUG") == true) {
             \DB::enableQueryLog();
