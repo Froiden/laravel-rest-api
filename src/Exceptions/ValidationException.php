@@ -22,6 +22,6 @@ class ValidationException extends ApiException
     {
         parent::__construct();
 
-        $this->errors = $errors;
+        $this->details = $errors;
     }
 }

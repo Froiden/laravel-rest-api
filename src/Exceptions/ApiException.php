@@ -27,10 +27,15 @@ class ApiException extends \Exception implements \JsonSerializable, Jsonable
      */
     protected $message = "An unknown error occurred";
 
-    public function __construct($message = null, $previous = null, $code = ErrorCodes::UNKNOWN_EXCEPTION, $statusCode = 400, $innerError = null, $details = [])
+    public function __construct($message = null, $previous = null, $code = null, $statusCode = null, $innerError = null, $details = [])
     {
-        $this->statusCode = $statusCode;
-        $this->code = $code;
+        if ($statusCode !== null) {
+            $this->statusCode = $statusCode;
+        }
+
+        if ($code !== null) {
+            $this->code = $code;
+        }
 
         if ($innerError !== null) {
             $this->innerError = $innerError;
