@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class ApiController extends \Illuminate\Routing\Controller
@@ -692,7 +693,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isIndex()
     {
-        return Str::endsWith(request()->route()->getName(), "index");
+        return in_array("index", explode(".", request()->route()->getName()));
     }
 
     /**
