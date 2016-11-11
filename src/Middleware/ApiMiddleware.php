@@ -14,7 +14,8 @@ class ApiMiddleware
 
         if (config("api.cors")) {
             $response->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'X-SNAPHRM-HOST');
         }
 
         return $response;

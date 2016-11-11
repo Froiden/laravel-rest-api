@@ -92,6 +92,24 @@ class ApiRouter extends Router
             }
 
             $routes->add($route);
+
+            // Options route
+            $route = $this->createRoute(['OPTIONS'], $uri, function () {
+
+            });
+
+            $route->middleware(ApiMiddleware::class);
+
+            if ($version !== null) {
+                $route->prefix($version);
+                $route->name("." . $version);
+            }
+
+            if (!empty($prefix)) {
+                $route->prefix($prefix);
+            }
+
+            $routes->add($route);
         }
 
         app("router")->setRoutes($routes);
