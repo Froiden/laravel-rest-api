@@ -95,7 +95,7 @@ class ApiRouter extends Router
 
             // Options route
             $route = $this->createRoute(['OPTIONS'], $uri, function () {
-
+                return [];
             });
 
             $route->middleware(ApiMiddleware::class);
