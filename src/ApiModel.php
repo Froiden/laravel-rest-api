@@ -39,9 +39,19 @@ class ApiModel extends Model
      */
     protected $filterable = ["id"];
 
+    /**
+     * List of relation attributes found during parsing of request, to be used during saving action
+     * @var array
+     */
     protected $relationAttributes = [];
 
     protected $guarded = [];
+
+    /**
+     * Raw attributes as sent in request. To be used in setters of various attributes
+     * @var array
+     */
+    protected $raw = [];
 
     //region Metadata functions
 
@@ -217,6 +227,8 @@ class ApiModel extends Model
      */
     public function fill(array $attributes = [])
     {
+        $this->raw = $attributes;
+
         $excludes = config("api.excludes");
 
         foreach ($attributes as $key => $attribute) {
