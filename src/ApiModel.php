@@ -236,7 +236,7 @@ class ApiModel extends Model
             if (in_array($attribute, $excludes)) {
                 unset($attributes[$key]);
             }
-            else if (method_exists($this, $key) && is_array($attribute)) {
+            else if (method_exists($this, $key) && ((is_array($attribute) || is_null($attribute)))) {
                 // Its a relation
                 $this->relationAttributes[$key] = $attribute;
                 unset($attributes[$key]);
@@ -269,8 +269,10 @@ class ApiModel extends Model
                     }
                 }
 
-                $model->fill($relationAttribute);
-                $model->save();
+                if ($relationAttribute !== null) {
+                    $model->fill($relationAttribute);
+                    $model->save();
+                }
 
                 $relationKey = $relation->getForeignKey();
 
