@@ -39,9 +39,19 @@ class ApiModel extends Model
      */
     protected $filterable = ["id"];
 
+    /**
+     * List of relation attributes found during parsing of request, to be used during saving action
+     * @var array
+     */
     protected $relationAttributes = [];
 
     protected $guarded = [];
+
+    /**
+     * Raw attributes as sent in request. To be used in setters of various attributes
+     * @var array
+     */
+    protected $raw = [];
 
     //region Metadata functions
 
@@ -125,7 +135,7 @@ class ApiModel extends Model
      * @param  \DateTime  $date
      * @return string
      */
-    protected function serializeDate(\DateTime $date)
+    protected function serializeDate(\DateTimeInterface $date)
     {
         return $date->format("c");
     }
@@ -172,6 +182,9 @@ class ApiModel extends Model
         if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2}T(\d{2}):(\d{2}):(\d{2})\\+(\d{2}):(\d{2}))$/', $value)) {
             return Carbon::createFromFormat('Y-m-d\TH:i:s+P', $value);
         }
+        elseif (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2}T(\d{2}):(\d{2}):(\d{2})\\.(\d{1,3})Z)$/', $value)) {
+            return Carbon::createFromFormat('Y-m-d\TH:i:s.uZ', $value);
+        }
 
         // Finally, we will just assume this date is in the format used by default on
         // the database connection and use that format to create the Carbon object
@@ -217,6 +230,8 @@ class ApiModel extends Model
      */
     public function fill(array $attributes = [])
     {
+        $this->raw = $attributes;
+
         $excludes = config("api.excludes");
 
         foreach ($attributes as $key => $attribute) {
@@ -224,7 +239,7 @@ class ApiModel extends Model
             if (in_array($attribute, $excludes)) {
                 unset($attributes[$key]);
             }
-            else if (method_exists($this, $key) && is_array($attribute)) {
+            else if (method_exists($this, $key) && ((is_array($attribute) || is_null($attribute)))) {
                 // Its a relation
                 $this->relationAttributes[$key] = $attribute;
                 unset($attributes[$key]);
@@ -257,8 +272,10 @@ class ApiModel extends Model
                     }
                 }
 
-                $model->fill($relationAttribute);
-                $model->save();
+                if ($relationAttribute !== null) {
+                    $model->fill($relationAttribute);
+                    $model->save();
+                }
 
                 $relationKey = $relation->getForeignKey();
 

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class ApiController extends \Illuminate\Routing\Controller
@@ -692,7 +693,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isIndex()
     {
-        return Str::endsWith(request()->route()->getName(), "index");
+        return in_array("index", explode(".", request()->route()->getName()));
     }
 
     /**
@@ -701,7 +702,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isCreate()
     {
-        return Str::endsWith(request()->route()->getName(), "create");
+        return in_array("create", explode(".", request()->route()->getName()));
     }
 
     /**
@@ -710,7 +711,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isShow()
     {
-        return Str::endsWith(request()->route()->getName(), "show");
+        return in_array("show", explode(".", request()->route()->getName()));
     }
 
     /**
@@ -719,7 +720,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isUpdate()
     {
-        return Str::endsWith(request()->route()->getName(), "update");
+        return in_array("update", explode(".", request()->route()->getName()));
     }
 
     /**
@@ -728,7 +729,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isDelete()
     {
-        return Str::endsWith(request()->route()->getName(), "delete");
+        return in_array("delete", explode(".", request()->route()->getName()));
     }
 
     /**
@@ -737,7 +738,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isStore()
     {
-        return Str::endsWith(request()->route()->getName(), "store");
+        return in_array("store", explode(".", request()->route()->getName()));
     }
     
     /**
@@ -746,7 +747,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isRelation()
     {
-        return Str::endsWith(request()->route()->getName(), "relation");
+        return in_array("relation", explode(".", request()->route()->getName()));
     }
 
     /**
