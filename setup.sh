@@ -29,6 +29,6 @@ fi
 
 rm -rf laravel-rest-api
 git clone https://github.com/Froiden/laravel-rest-api
-git checkout laravel5.3
+git checkout master
 composer du
 cd .. || exit
