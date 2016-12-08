@@ -236,7 +236,7 @@ class ApiModel extends Model
 
         foreach ($attributes as $key => $attribute) {
             // Guarded attributes should be removed
-            if (in_array($attribute, $excludes)) {
+            if (in_array($key, $excludes)) {
                 unset($attributes[$key]);
             }
             else if (method_exists($this, $key) && ((is_array($attribute) || is_null($attribute)))) {
