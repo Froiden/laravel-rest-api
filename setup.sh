@@ -17,6 +17,8 @@ if [ ! -f "laravel/composer.json" ] ; then
         echo "$(awk '/'\''aliases'\''[^\n]*?\[/ { print; print "'$(sed -e 's/\s*//g' <<<${FACADES})',"; next }1' config/app.php)" > config/app.php
     fi
 
+    sed -i "s|'strict' => true|'strict' => false|g" ./config/database.php
+
     php -r "
         \$arr = json_decode(file_get_contents(\"composer.json\"), true);
         \$arr[\"autoload\"][\"psr-4\"][\"Froiden\\\\RestAPI\\\\\"] = \"laravel-rest-api/src\";
