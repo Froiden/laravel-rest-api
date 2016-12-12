@@ -528,6 +528,10 @@ class ApiController extends \Illuminate\Routing\Controller
             /** @var Collection $results */
             $results = $this->query->select($fields)->get();
 
+            if ($results->count() == 0) {
+                throw new ResourceNotFoundException();
+            }
+
         }
         else {
             $results = $this->query->select($fields)->skip(0)->take(1)->get();
