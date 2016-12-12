@@ -23,6 +23,8 @@ class PaginationTest extends TestCase
                 'offset' => '5',
                 'limit' => '2'
             ]);
+
+        dump($response->getContent());
         $this->assertEquals(200, $response->status());
 
         // Pagination set offset = "1" or limit ="1"
@@ -32,6 +34,8 @@ class PaginationTest extends TestCase
                 'offset' => '1',
                 'limit' => '1'
             ]);
+
+        dump($response->getContent());
         $this->assertEquals(200, $response->status());
 
         // Pagination set offset = "5" or limit ="3"
@@ -41,6 +45,8 @@ class PaginationTest extends TestCase
                 'offset' => '5',
                 'limit' => '-2'
             ]);
+
+        dump($response->getContent());
         $this->assertNotEquals(200, $response->status());
     }
 }
