@@ -21,22 +21,22 @@ class RequestParser
     /**
      * Extracts fields parts
      */
-    const FIELD_PARTS_REGEX = "/([^{.]+)(.limit\\(([0-9]+)\\)|.offset\\(([0-9]+)\\)|.order\\(([A-Za-z]+)\\))*(\\{((?>[^{}]+)|(?R))*\\})?/";
+    const FIELD_PARTS_REGEX = "/([^{.]+)(.limit\\(([0-9]+)\\)|.offset\\(([0-9]+)\\)|.order\\(([A-Za-z]+)\\))*(\\{((?>[^{}]+)|(?R))*\\})?/i";
 
     /**
      * Checks if filters are correctly specified
      */
-    const FILTER_REGEX = "/(\\((?:[\\s]*(?:and|or)?[\\s]*[\\w\\.]+[\\s]+(?:eq|ne|gt|ge|lt|le|lk)[\\s]+(?:\\\"(?:[^\\\"\\\\]|\\\\.)*\\\"|\\d+(,\\d+)*(\\.\\d+(e\\d+)?)?|null)[\\s]*|(?R))*\\))/";
+    const FILTER_REGEX = "/(\\((?:[\\s]*(?:and|or)?[\\s]*[\\w\\.]+[\\s]+(?:eq|ne|gt|ge|lt|le|lk)[\\s]+(?:\\\"(?:[^\\\"\\\\]|\\\\.)*\\\"|\\d+(,\\d+)*(\\.\\d+(e\\d+)?)?|null)[\\s]*|(?R))*\\))/i";
 
     /**
      * Extracts filter parts
      */
-    const FILTER_PARTS_REGEX = "/([\\w\\.]+)[\\s]+(?:eq|ne|gt|ge|lt|le|lk)[\\s]+(?:\"(?:[^\"\\\\]|\\\\.)*\"|\\d+(?:,\\d+)*(?:\\.\\d+(?:e\\d+)?)?|null)/";
+    const FILTER_PARTS_REGEX = "/([\\w\\.]+)[\\s]+(?:eq|ne|gt|ge|lt|le|lk)[\\s]+(?:\"(?:[^\"\\\\]|\\\\.)*\"|\\d+(?:,\\d+)*(?:\\.\\d+(?:e\\d+)?)?|null)/i";
 
     /**
      * Checks if ordering is specified correctly
      */
-    const ORDER_FILTER = "/[\\s]*([\\w\\.]+)(?:[\\s](?!,))*(asc|desc|)/";
+    const ORDER_FILTER = "/[\\s]*([\\w\\.]+)(?:[\\s](?!,))*(asc|desc|)/i";
 
     /**
      * Full class reference to model this controller represents
@@ -270,8 +270,8 @@ class RequestParser
                 // Convert filter name to sql `column` format
                 $where = preg_replace(
                     [
-                        "/([\\w]+)\\.([\\w]+)[\\s]+(eq|ne|gt|ge|lt|le|lk)/",
-                        "/([\\w]+)[\\s]+(eq|ne|gt|ge|lt|le|lk)/",
+                        "/([\\w]+)\\.([\\w]+)[\\s]+(eq|ne|gt|ge|lt|le|lk)/i",
+                        "/([\\w]+)[\\s]+(eq|ne|gt|ge|lt|le|lk)/i",
                     ],
                     [
                         "`$1`.`$2` $3",
@@ -283,8 +283,8 @@ class RequestParser
                 // convert eq null to is null and ne null to is not null
                 $where = preg_replace(
                     [
-                        "/ne[\\s]+null/",
-                        "/eq[\\s]+null/"
+                        "/ne[\\s]+null/i",
+                        "/eq[\\s]+null/i"
                     ],
                     [
                         "is not null",
@@ -296,13 +296,13 @@ class RequestParser
                 // Replace operators
                 $where = preg_replace(
                     [
-                        "/[\\s]+eq[\\s]+/",
-                        "/[\\s]+ne[\\s]+/",
-                        "/[\\s]+gt[\\s]+/",
-                        "/[\\s]+ge[\\s]+/",
-                        "/[\\s]+lt[\\s]+/",
-                        "/[\\s]+le[\\s]+/",
-                        "/[\\s]+lk[\\s]+/"
+                        "/[\\s]+eq[\\s]+/i",
+                        "/[\\s]+ne[\\s]+/i",
+                        "/[\\s]+gt[\\s]+/i",
+                        "/[\\s]+ge[\\s]+/i",
+                        "/[\\s]+lt[\\s]+/i",
+                        "/[\\s]+le[\\s]+/i",
+                        "/[\\s]+lk[\\s]+/i"
                     ],
                     [
                         " = ",
