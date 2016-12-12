@@ -25,6 +25,7 @@ install:
   #run the setup script
   - curl -s https://raw.githubusercontent.com/froiden/laravel-rest-api/master/setup.sh | bash
   - mysql -e 'create database homestead_test;'
+  - mysql -e "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
 
 services: mysql
 
