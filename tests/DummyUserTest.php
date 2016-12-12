@@ -105,14 +105,14 @@ class DummyUserTest extends TestCase
             [
                'order' => "id desc",
             ]);
-        dump($response->getContent());
+
         $this->assertEquals(200, $response->status());
 
-        dump($response->getContent());
         $response = $this->call('GET', '/dummyUser',
             [
                 'order' => "id asc",
             ]);
+
         $this->assertEquals(200, $response->status());
 
     }
