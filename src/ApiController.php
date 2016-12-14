@@ -520,6 +520,10 @@ class ApiController extends \Illuminate\Routing\Controller
                 $appends[] = $field;
                 unset($fields[$key]);
             }
+            else {
+                // Add table name to  fields to prevent ambiguous column issues
+                $fields[$key] = $this->table . "." . $field;
+            }
         }
 
         $this->parser->setFields($fields);
@@ -527,16 +531,12 @@ class ApiController extends \Illuminate\Routing\Controller
         if (!$single) {
             /** @var Collection $results */
             $results = $this->query->select($fields)->get();
-
-            if ($results->count() == 0) {
-                throw new ResourceNotFoundException();
-            }
-
         }
         else {
+            /** @var Collection $results */
             $results = $this->query->select($fields)->skip(0)->take(1)->get();
 
-            if (!$results) {
+            if ($results->count() == 0) {
                 throw new ResourceNotFoundException();
             }
         }
@@ -814,6 +814,14 @@ class ApiController extends \Illuminate\Routing\Controller
     protected function modifyIndex($query)
     {
         return $query;
+    }
+
+    protected function getQuery() {
+        return $this->query;
+    }
+
+    protected function setQuery($query) {
+        $this->query = $query;
     }
 
     //endregion
