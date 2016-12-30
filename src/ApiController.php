@@ -191,11 +191,21 @@ class ApiController extends \Illuminate\Routing\Controller
         /** @var ApiModel $object */
         $object = new $this->model();
         $object->fill(request()->all());
+
+        // Run hook if exists
+        if(method_exists($this, 'storing')) {
+            $object = call_user_func([$this, 'storing'], $object);
+        }
+
         $object->save();
 
         $meta = $this->getMetaData(true);
 
         \DB::commit();
+
+        if(method_exists($this, 'stored')) {
+            call_user_func([$this, 'stored'], $object);
+        }
 
         return ApiResponse::make("Resource created successfully", [ "id" => $object->id ], $meta);
     }
@@ -218,11 +228,20 @@ class ApiController extends \Illuminate\Routing\Controller
         }
 
         $object->fill(request()->all());
+
+        if(method_exists($this, 'updating')) {
+            $object = call_user_func([$this, 'updating'], $object);
+        }
+
         $object->save();
 
         $meta = $this->getMetaData(true);
 
         \DB::commit();
+
+        if(method_exists($this, 'updated')) {
+            call_user_func([$this, 'updated'], $object);
+        }
 
         return ApiResponse::make("Resource updated successfully", [ "id" => $object->id ], $meta);
     }
@@ -244,11 +263,19 @@ class ApiController extends \Illuminate\Routing\Controller
             throw new ResourceNotFoundException();
         }
 
+        if(method_exists($this, 'destroying')) {
+            $object = call_user_func([$this, 'destroyed'], $object);
+        }
+
         $object->delete();
 
         $meta = $this->getMetaData(true);
 
         \DB::commit();
+
+        if(method_exists($this, 'destroyed')) {
+            call_user_func([$this, 'destroyed'], $object);
+        }
 
         return ApiResponse::make("Resource deleted successfully", null, $meta);
     }
