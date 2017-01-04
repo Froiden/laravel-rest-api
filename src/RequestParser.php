@@ -8,6 +8,7 @@ use Froiden\RestAPI\Exceptions\Parse\InvalidOrderingDefinitionException;
 use Froiden\RestAPI\Exceptions\Parse\MaxLimitException;
 use Froiden\RestAPI\Exceptions\Parse\NotAllowedToFilterOnThisFieldException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
@@ -413,12 +414,28 @@ class RequestParser
 
                     if (Str::contains($fieldName, ".")) {
 
-                        // TODO: add support for non standard relation column names for multi level relations
+                        $relationNameParts = explode('.', $fieldName);
+                        $model = $this->model;
+
+                        $relation = null;
+
+                        foreach ($relationNameParts as $rp) {
+                            $relation = call_user_func([ new $model(), $rp]);
+                            $model = $relation->getRelated();
+                        }
 
                         // Its a multi level relations
                         $fieldParts = explode(".", $fieldName);
 
-                        $singular = Str::singular(last($fieldParts));
+                        if ($relation instanceof BelongsTo) {
+                            $singular = $relation->getOtherKey();
+                        }
+                        else if ($relation instanceof HasOne || $relation instanceof HasMany) {
+                            $singular = explode('.', $relation->getForeignKey())[1];
+                        }
+                        else {
+                            $singular = Str::singular(last($fieldParts));
+                        }
 
                         // Unset last element of array
                         unset($fieldParts[count($fieldParts) - 1]);
@@ -432,12 +449,12 @@ class RequestParser
                                 "limit" => config("api.defaultLimit"),
                                 "offset" => 0,
                                 "order" => "chronological",
-                                "fields" => [$singular . "_id"],
+                                "fields" => [$singular],
                                 "userSpecifiedFields" => true
                             ];
                         }
                         else {
-                            $this->relations[$parent]["fields"][] = $singular . "_id";
+                            $this->relations[$parent]["fields"][] = $singular;
                         }
                     }
                     else {
