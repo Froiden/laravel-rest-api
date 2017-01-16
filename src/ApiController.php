@@ -164,8 +164,14 @@ class ApiController extends \Illuminate\Routing\Controller
      *
      * @return mixed
      */
-    public function show($id)
+    public function show()
     {
+        // We need to do this in order to support multiple parameter resource routes. For example,
+        // if we map route /user/{user}/comments/{comment} to a controller, Laravel will pass `user`
+        // as first argument and `comment` as last argument. So, id object that we want to fetch
+        // is the last argument.
+        $id = last(func_get_args());
+
         $this->validate();
 
         $results = $this->parseRequest()
@@ -210,9 +216,11 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make("Resource created successfully", [ "id" => $object->id ], $meta);
     }
 
-    public function update($id)
+    public function update()
     {
         \DB::beginTransaction();
+
+        $id = last(func_get_args());
 
         $this->validate();
 
@@ -246,9 +254,11 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make("Resource updated successfully", [ "id" => $object->id ], $meta);
     }
 
-    public function destroy($id)
+    public function destroy()
     {
         \DB::beginTransaction();
+
+        $id = last(func_get_args());
 
         $this->validate();
 
