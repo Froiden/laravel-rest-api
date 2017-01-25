@@ -428,7 +428,7 @@ class RequestParser
                         $fieldParts = explode(".", $fieldName);
 
                         if ($relation instanceof BelongsTo) {
-                            $singular = $relation->getOtherKey();
+                            $singular = $relation->getForeignKey();
                         }
                         else if ($relation instanceof HasOne || $relation instanceof HasMany) {
                             $singular = explode('.', $relation->getForeignKey())[1];
@@ -456,6 +456,8 @@ class RequestParser
                         else {
                             $this->relations[$parent]["fields"][] = $singular;
                         }
+
+                        \Log::debug($this->relations[$parent]);
                     }
                     else {
 
