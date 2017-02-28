@@ -116,7 +116,7 @@ class  TestCase extends \Illuminate\Foundation\Testing\TestCase
         Schema::create('dummy_users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email', 100)->unique();
             $table->integer('age');
             $table->timestamps();
         });
