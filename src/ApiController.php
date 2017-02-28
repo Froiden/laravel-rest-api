@@ -770,7 +770,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isDelete()
     {
-        return in_array("delete", explode(".", request()->route()->getName()));
+        return in_array("destroy", explode(".", request()->route()->getName()));
     }
 
     /**
