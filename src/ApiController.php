@@ -436,7 +436,12 @@ class ApiController extends \Illuminate\Routing\Controller
                         // need to be attached
                         if ($q instanceof BelongsTo) {
                             $fields[] = $q->getOtherKey();
-//                            $relations[$key]["foreign"] = $q->getOtherKey();
+
+                            if (strpos($key, ".") !== false) {
+                                $parts = explode(".", $key);
+
+                                $relation["limit"] = $relations[$parts[count($parts) - 2]]["limit"];
+                            }
                         }
                         else if ($q instanceof HasOne) {
                             $fields[] = $q->getForeignKey();
@@ -448,6 +453,8 @@ class ApiController extends \Illuminate\Routing\Controller
                         else if ($q instanceof HasMany) {
                             $fields[] = $q->getForeignKey();
                             $relations[$key]["foreign"] = $q->getForeignKey();
+
+                            $q->orderBy($primaryKey, ($relation["order"] == "chronological") ? "ASC" : "DESC");
                         }
 
                         $q->select($fields);
@@ -694,7 +701,7 @@ class ApiController extends \Illuminate\Routing\Controller
             \DB::disableQueryLog();
 
             $meta["queries"] = count($log);
-//            $meta["queries_list"] = $log;
+           $meta["queries_list"] = $log;
         }
 
         return $meta;
