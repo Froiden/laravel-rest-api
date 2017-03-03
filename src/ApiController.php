@@ -439,8 +439,9 @@ class ApiController extends \Illuminate\Routing\Controller
 
                             if (strpos($key, ".") !== false) {
                                 $parts = explode(".", $key);
+                                array_pop($parts);
 
-                                $relation["limit"] = $relations[$parts[count($parts) - 2]]["limit"];
+                                $relation["limit"] = $relations[implode(".", $parts)]["limit"];
                             }
                         }
                         else if ($q instanceof HasOne) {
