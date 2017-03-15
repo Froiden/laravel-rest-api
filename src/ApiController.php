@@ -141,7 +141,7 @@ class ApiController extends \Illuminate\Routing\Controller
      *
      * @return mixed
      */
-    public function index(...$args)
+    public function index()
     {
         $this->validate();
 
@@ -187,7 +187,7 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make(null, $results, $meta);
     }
 
-    public function store(...$args)
+    public function store()
     {
         \DB::beginTransaction();
 
