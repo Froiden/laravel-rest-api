@@ -5,6 +5,7 @@ namespace Froiden\RestAPI\Middleware;
 use Closure;
 use Froiden\RestAPI\ApiResponse;
 use Froiden\RestAPI\Exceptions\UnauthorizedException;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ApiMiddleware
@@ -15,7 +16,7 @@ class ApiMiddleware
         // Add CORS headers
         $response = $next($request);
 
-        if ($response->getStatusCode() == 403 && $response->getContent() == "Forbidden") {
+        if ($response->getStatusCode() == 403 && ($response->getContent() == "Forbidden" || Str::contains($response->getContent(), ['HttpException', 'authorized']))) {
             $response = ApiResponse::exception(new UnauthorizedException());
         }
 

@@ -164,7 +164,7 @@ class ApiController extends \Illuminate\Routing\Controller
      *
      * @return mixed
      */
-    public function show()
+    public function show(...$args)
     {
         // We need to do this in order to support multiple parameter resource routes. For example,
         // if we map route /user/{user}/comments/{comment} to a controller, Laravel will pass `user`
@@ -216,7 +216,7 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make("Resource created successfully", [ "id" => $object->id ], $meta);
     }
 
-    public function update()
+    public function update(...$args)
     {
         \DB::beginTransaction();
 
@@ -254,7 +254,7 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make("Resource updated successfully", [ "id" => $object->id ], $meta);
     }
 
-    public function destroy()
+    public function destroy(...$args)
     {
         \DB::beginTransaction();
 
@@ -436,7 +436,13 @@ class ApiController extends \Illuminate\Routing\Controller
                         // need to be attached
                         if ($q instanceof BelongsTo) {
                             $fields[] = $q->getOtherKey();
-//                            $relations[$key]["foreign"] = $q->getOtherKey();
+
+                            if (strpos($key, ".") !== false) {
+                                $parts = explode(".", $key);
+                                array_pop($parts);
+
+                                $relation["limit"] = $relations[implode(".", $parts)]["limit"];
+                            }
                         }
                         else if ($q instanceof HasOne) {
                             $fields[] = $q->getForeignKey();
@@ -448,6 +454,8 @@ class ApiController extends \Illuminate\Routing\Controller
                         else if ($q instanceof HasMany) {
                             $fields[] = $q->getForeignKey();
                             $relations[$key]["foreign"] = $q->getForeignKey();
+
+                            $q->orderBy($primaryKey, ($relation["order"] == "chronological") ? "ASC" : "DESC");
                         }
 
                         $q->select($fields);
@@ -694,7 +702,7 @@ class ApiController extends \Illuminate\Routing\Controller
             \DB::disableQueryLog();
 
             $meta["queries"] = count($log);
-//            $meta["queries_list"] = $log;
+           $meta["queries_list"] = $log;
         }
 
         return $meta;
@@ -770,7 +778,7 @@ class ApiController extends \Illuminate\Routing\Controller
      */
     protected function isDelete()
     {
-        return in_array("delete", explode(".", request()->route()->getName()));
+        return in_array("destroy", explode(".", request()->route()->getName()));
     }
 
     /**

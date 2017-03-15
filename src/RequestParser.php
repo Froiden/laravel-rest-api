@@ -22,7 +22,7 @@ class RequestParser
     /**
      * Extracts fields parts
      */
-    const FIELD_PARTS_REGEX = "/([^{.]+)(.limit\\(([0-9]+)\\)|.offset\\(([0-9]+)\\)|.order\\(([A-Za-z]+)\\))*(\\{((?>[^{}]+)|(?R))*\\})?/i";
+    const FIELD_PARTS_REGEX = "/([^{.]+)(.limit\\(([0-9]+)\\)|.offset\\(([0-9]+)\\)|.order\\(([A-Za-z_]+)\\))*(\\{((?>[^{}]+)|(?R))*\\})?/i";
 
     /**
      * Checks if filters are correctly specified
@@ -456,8 +456,6 @@ class RequestParser
                         else {
                             $this->relations[$parent]["fields"][] = $singular;
                         }
-
-                        \Log::debug($this->relations[$parent]);
                     }
                     else {
 

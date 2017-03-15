@@ -6,8 +6,6 @@
 
 This package provides a powerful Rest API functionality for your Laravel project, with minimum code required for you to write.
 
-**Note**: This package is under development and not recommended for use in production.
-
 ## Documentation
 For full documentation please refer to [plugin's wiki](https://github.com/Froiden/laravel-rest-api/wiki).
 
