@@ -141,7 +141,7 @@ class ApiController extends \Illuminate\Routing\Controller
      *
      * @return mixed
      */
-    public function index()
+    public function index(...$args)
     {
         $this->validate();
 
@@ -164,7 +164,7 @@ class ApiController extends \Illuminate\Routing\Controller
      *
      * @return mixed
      */
-    public function show()
+    public function show(...$args)
     {
         // We need to do this in order to support multiple parameter resource routes. For example,
         // if we map route /user/{user}/comments/{comment} to a controller, Laravel will pass `user`
@@ -187,7 +187,7 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make(null, $results, $meta);
     }
 
-    public function store()
+    public function store(...$args)
     {
         \DB::beginTransaction();
 
@@ -216,7 +216,7 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make("Resource created successfully", [ "id" => $object->id ], $meta);
     }
 
-    public function update()
+    public function update(...$args)
     {
         \DB::beginTransaction();
 
@@ -254,7 +254,7 @@ class ApiController extends \Illuminate\Routing\Controller
         return ApiResponse::make("Resource updated successfully", [ "id" => $object->id ], $meta);
     }
 
-    public function destroy()
+    public function destroy(...$args)
     {
         \DB::beginTransaction();
 
