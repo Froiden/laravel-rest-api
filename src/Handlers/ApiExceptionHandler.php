@@ -8,6 +8,7 @@ use Froiden\RestAPI\Exceptions\ApiException;
 use Froiden\RestAPI\Exceptions\Parse\UnknownFieldException;
 use Froiden\RestAPI\Exceptions\UnauthorizedException;
 use Froiden\RestAPI\Exceptions\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Exception\HttpResponseException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -30,6 +31,11 @@ class ApiExceptionHandler extends Handler
             }
             else if ($e instanceof NotFoundHttpException) {
                 return ApiResponse::exception(new ApiException('This api endpoint does not exist', null, 404, 404, 2005, [
+                        'url' => request()->url()
+                    ]));
+            }
+            else if ($e instanceof ModelNotFoundException) {
+                return ApiResponse::exception(new ApiException('Requested resource not found', null, 404, 404, null, [
                         'url' => request()->url()
                     ]));
             }
