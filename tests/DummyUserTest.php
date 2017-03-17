@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Froiden\RestAPI\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Froiden\RestAPI\Tests\TestCase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Routing\Router;
 
 class DummyUserTest extends TestCase
 {
@@ -27,6 +28,9 @@ class DummyUserTest extends TestCase
             [
                 'fields' => "id,name,email,age",
             ]);
+        // dump($this->app['router']->getRoutes()->get());
+        dump($response->getContent());
+
         $this->assertEquals(200, $response->status());
     }
 

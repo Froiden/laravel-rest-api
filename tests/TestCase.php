@@ -34,7 +34,9 @@ class  TestCase extends \Illuminate\Foundation\Testing\TestCase
     public function setUp()
     {
         parent::setUp();
+        
         \DB::statement("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+
         $this->createTables();
         $this->seedDummyData();
 

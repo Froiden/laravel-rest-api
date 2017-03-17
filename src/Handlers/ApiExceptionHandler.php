@@ -29,7 +29,9 @@ class ApiExceptionHandler extends Handler
                 }
             }
             else if ($e instanceof NotFoundHttpException) {
-                return ApiResponse::exception(new ApiException('This api endpoint does not exist',null, 404, 404, 2005));
+                return ApiResponse::exception(new ApiException('This api endpoint does not exist', null, 404, 404, 2005, [
+                        'url' => request()->url()
+                    ]));
             }
             else if ($e instanceof ApiException) {
                 return ApiResponse::exception($e);

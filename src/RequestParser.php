@@ -433,9 +433,6 @@ class RequestParser
                         else if ($relation instanceof HasOne || $relation instanceof HasMany) {
                             $singular = explode('.', $relation->getForeignKey())[1];
                         }
-                        else {
-                            $singular = Str::singular(last($fieldParts));
-                        }
 
                         // Unset last element of array
                         unset($fieldParts[count($fieldParts) - 1]);
@@ -449,12 +446,14 @@ class RequestParser
                                 "limit" => config("api.defaultLimit"),
                                 "offset" => 0,
                                 "order" => "chronological",
-                                "fields" => [$singular],
+                                "fields" => isset($singular) ? [$singular] : [] ,
                                 "userSpecifiedFields" => true
                             ];
                         }
                         else {
-                            $this->relations[$parent]["fields"][] = $singular;
+                            if (isset($singular)) {
+                                $this->relations[$parent]["fields"][] = $singular;
+                            }
                         }
                     }
                     else {
