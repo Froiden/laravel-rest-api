@@ -28,8 +28,6 @@ class DummyUserTest extends TestCase
             [
                 'fields' => "id,name,email,age",
             ]);
-        // dump($this->app['router']->getRoutes()->get());
-        dump($response->getContent());
 
         $this->assertEquals(200, $response->status());
     }

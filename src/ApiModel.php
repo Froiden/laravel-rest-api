@@ -242,6 +242,31 @@ class ApiModel extends Model
             else if (method_exists($this, $key) && ((is_array($attribute) || is_null($attribute)))) {
                 // Its a relation
                 $this->relationAttributes[$key] = $attribute;
+
+                // For belongs to relation, while filling, we need to set relation key.
+                $relation = call_user_func([$this, $key]);
+
+                if ($relation instanceof BelongsTo) {
+                    $primaryKey = $relation->getRelated()->getKeyName();
+
+                    // If key value is not set in request, we create new object
+                    if (!isset($attribute[$primaryKey])) {
+                        $model = $relation->getRelated()->newInstance();
+                    }
+                    else {
+                        $model = $relation->getRelated()->find($attribute[$primaryKey]);
+
+                        if (!$model) {
+                            // Resource not found
+                            throw new ResourceNotFoundException();
+                        }
+                    }
+
+                    $relationKey = $relation->getForeignKey();
+
+                    $this->setAttribute($relationKey, $model->getKey());
+                }
+
                 unset($attributes[$key]);
             }
         }
