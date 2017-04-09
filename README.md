@@ -1,6 +1,5 @@
 # Laravel Rest API
 
-[![Build Status](https://travis-ci.org/Froiden/laravel-rest-api.svg)](https://travis-ci.org/Froiden/laravel-rest-api)
 [![Packagist License](https://poser.pugx.org/froiden/laravel-rest-api/license.png)]()
 [![Total Downloads](https://poser.pugx.org/froiden/laravel-rest-api/d/total.png)](https://packagist.org/packages/froiden/laravel-rest-api)
 
