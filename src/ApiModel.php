@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Closure;
 use DateTimeInterface;
+use Froiden\RestAPI\Exceptions\RelatedResourceNotFoundException;
 use Froiden\RestAPI\Exceptions\ResourceNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -286,20 +287,15 @@ class ApiModel extends Model
 
                 // If key value is not set in request, we create new object
                 if (!isset($relationAttribute[$primaryKey])) {
-                    $model = $relation->getRelated()->newInstance();
+                    throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                 }
                 else {
                     $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
 
                     if (!$model) {
                         // Resource not found
-                        throw new ResourceNotFoundException();
+                        throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                     }
-                }
-
-                if ($relationAttribute !== null) {
-                    $model->fill($relationAttribute);
-                    $model->save();
                 }
 
                 $relationKey = $relation->getForeignKey();
@@ -328,10 +324,7 @@ class ApiModel extends Model
 
                 foreach ($relationAttribute as $val) {
                     if (!isset($val[$primaryKey])) {
-                        $model = $relation->getRelated()->newInstance();
-                        $model->fill($val);
-                        $model->{$relationKey} = $this->getKey();
-                        $model->save();
+                        throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                     }
                     else {
                         /** @var Model $model */
@@ -339,16 +332,12 @@ class ApiModel extends Model
 
                         if (!$model) {
                             // Resource not found
-                            throw new ResourceNotFoundException();
+                            throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                         }
 
-                        // To prevent updating related model every time, we check id model has
-                        // any key other than id. If yes, we assume we need to update, else we do not update
-                        if (count($val) > 1) {
-                            $model->fill($val);
-                            $model->{$relationKey} = $this->getKey();
-                            $model->save();
-                        }
+                        // Only update relation key to attach $model to $this object
+                        $model->{$relationKey} = $this->getKey();
+                        $model->save();
                     }
                 }
             }
@@ -359,9 +348,7 @@ class ApiModel extends Model
                 // Value is an array of related models
                 foreach ($relationAttribute as $val) {
                     if (!isset($val[$primaryKey])) {
-                        $model = $relation->getRelated()->newInstance();
-                        $model->fill($val);
-                        $model->save();
+                        throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                     }
                     else {
                         /** @var Model $model */
@@ -369,14 +356,7 @@ class ApiModel extends Model
 
                         if (!$model) {
                             // Resource not found
-                            throw new ResourceNotFoundException();
-                        }
-
-                        // To prevent updating related model every time, we check id model has
-                        // any key other than id. If yes, we assume we need to update, else we do not update
-                        if (count($val) > 1) {
-                            $model->fill($val);
-                            $model->save();
+                            throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                         }
                     }
 
