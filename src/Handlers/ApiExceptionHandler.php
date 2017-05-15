@@ -44,7 +44,16 @@ class ApiExceptionHandler extends Handler
             }
             else if ($e instanceof QueryException) {
                 if ($e->getCode() == "42S22") {
-                    return ApiResponse::exception(new UnknownFieldException(null, $e));
+                    preg_match("/Unknown column \\'([^']+)\\'/", $e->getMessage(), $result);
+
+                    if (!isset($result[1])) {
+                        return ApiResponse::exception(new UnknownFieldException(null, $e));
+                    }
+                    else {
+                        $parts = explode(".", $result[1]);
+
+                        return ApiResponse::exception(new UnknownFieldException("Field '" . $parts[1] . "' does not exist", $e));
+                    }
                 }
                 else {
                     return ApiResponse::exception(new ApiException(null, $e));

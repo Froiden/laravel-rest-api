@@ -264,7 +264,7 @@ class RequestParser
 
                 foreach ($parts[1] as $column) {
                     if (!in_array($column, $filterable)) {
-                        throw new NotAllowedToFilterOnThisFieldException();
+                        throw new NotAllowedToFilterOnThisFieldException("Applying filter on field \"" . $column . "\" is not allowed");
                     }
                 }
 
@@ -377,7 +377,7 @@ class RequestParser
                     // If method with field name exists in the class, we assume its a relation
                     // This is default laravel behavior
 
-                    $limit = ($parts[3][0] == "") ? 10 : $parts[3][0];
+                    $limit = ($parts[3][0] == "") ? config("api.defaultLimit") : $parts[3][0];
                     $offset = ($parts[4][0] == "") ? 0 : $parts[4][0];
                     $order = ($parts[5][0] == "chronological") ? "chronological" : "reverse_chronological";
 
@@ -454,6 +454,10 @@ class RequestParser
                             if (isset($singular)) {
                                 $this->relations[$parent]["fields"][] = $singular;
                             }
+                        }
+
+                        if ($relation instanceof BelongsTo) {
+                            $this->relations[$fieldName]["limit"] = max($this->relations[$fieldName]["limit"], $this->relations[$parent]["limit"]);
                         }
                     }
                     else {
