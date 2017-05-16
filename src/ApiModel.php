@@ -250,22 +250,24 @@ class ApiModel extends Model
                 if ($relation instanceof BelongsTo) {
                     $primaryKey = $relation->getRelated()->getKeyName();
 
-                    // If key value is not set in request, we create new object
-                    if (!isset($attribute[$primaryKey])) {
-                        $model = $relation->getRelated()->newInstance();
-                    }
-                    else {
-                        $model = $relation->getRelated()->find($attribute[$primaryKey]);
+                    if ($attribute !== null) {
+                        // If key value is not set in request, we create new object
+                        if (!isset($attribute[$primaryKey])) {
+                            throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
+                        }
+                        else {
+                            $model = $relation->getRelated()->find($attribute[$primaryKey]);
 
-                        if (!$model) {
-                            // Resource not found
-                            throw new ResourceNotFoundException();
+                            if (!$model) {
+                                // Resource not found
+                                throw new ResourceNotFoundException();
+                            }
                         }
                     }
 
                     $relationKey = $relation->getForeignKey();
 
-                    $this->setAttribute($relationKey, $model->getKey());
+                    $this->setAttribute($relationKey, ($attribute === null) ? null : $model->getKey());
                 }
 
                 unset($attributes[$key]);
@@ -285,22 +287,24 @@ class ApiModel extends Model
             if ($relation instanceof BelongsTo) {
                 $primaryKey = $relation->getRelated()->getKeyName();
 
-                // If key value is not set in request, we create new object
-                if (!isset($relationAttribute[$primaryKey])) {
-                    throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
-                }
-                else {
-                    $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
-
-                    if (!$model) {
-                        // Resource not found
+                if ($relationAttribute !== null) {
+                    // If key value is not set in request, we create new object
+                    if (!isset($relationAttribute[$primaryKey])) {
                         throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
+                    }
+                    else {
+                        $model = $relation->getRelated()->find($relationAttribute[$primaryKey]);
+
+                        if (!$model) {
+                            // Resource not found
+                            throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
+                        }
                     }
                 }
 
                 $relationKey = $relation->getForeignKey();
 
-                $this->setAttribute($relationKey, $model->getKey());
+                $this->setAttribute($relationKey, ($relationAttribute === null) ? null : $model->getKey());
 
                 unset($this->relationAttributes[$key]);
             }
@@ -323,21 +327,23 @@ class ApiModel extends Model
                 $relationKey = explode(".", $relation->getQualifiedParentKeyName())[1];
 
                 foreach ($relationAttribute as $val) {
-                    if (!isset($val[$primaryKey])) {
-                        throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
-                    }
-                    else {
-                        /** @var Model $model */
-                        $model = $relation->getRelated()->find($val[$primaryKey]);
-
-                        if (!$model) {
-                            // Resource not found
+                    if ($val !== null) {
+                        if (!isset($val[$primaryKey])) {
                             throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
                         }
+                        else {
+                            /** @var Model $model */
+                            $model = $relation->getRelated()->find($val[$primaryKey]);
 
-                        // Only update relation key to attach $model to $this object
-                        $model->{$relationKey} = $this->getKey();
-                        $model->save();
+                            if (!$model) {
+                                // Resource not found
+                                throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
+                            }
+
+                            // Only update relation key to attach $model to $this object
+                            $model->{$relationKey} = $this->getKey();
+                            $model->save();
+                        }
                     }
                 }
             }
@@ -347,20 +353,24 @@ class ApiModel extends Model
 
                 // Value is an array of related models
                 foreach ($relationAttribute as $val) {
-                    if (!isset($val[$primaryKey])) {
-                        throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
-                    }
-                    else {
-                        /** @var Model $model */
-                        $model = $relation->getRelated()->find($val[$primaryKey]);
-
-                        if (!$model) {
-                            // Resource not found
+                    if ($val !== null) {
+                        if (!isset($val[$primaryKey])) {
                             throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
+                        }
+                        else {
+                            /** @var Model $model */
+                            $model = $relation->getRelated()->find($val[$primaryKey]);
+
+                            if (!$model) {
+                                // Resource not found
+                                throw new RelatedResourceNotFoundException('Resource for relation "' . $key . '" not found');
+                            }
                         }
                     }
 
-                    $relatedIds[] = $model->getKey();
+                    if ($val !== null) {
+                        $relatedIds[] = $model->getKey();
+                    }
                 }
 
                 $relation->sync($relatedIds);
