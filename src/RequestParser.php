@@ -198,9 +198,6 @@ class RequestParser
      */
     protected function parseRequest()
     {
-        $this->extractFields();
-        $this->extractFilters();
-
         if (request()->limit) {
             if (request()->limit <= 0) {
                 throw new InvalidLimitException();
@@ -223,8 +220,9 @@ class RequestParser
             $this->offset = 0;
         }
 
+        $this->extractFields();
+        $this->extractFilters();
         $this->extractOrdering();
-
         $this->loadTableName();
 
         $this->attributes = request()->all();
@@ -459,6 +457,9 @@ class RequestParser
                         if ($relation instanceof BelongsTo) {
                             $this->relations[$fieldName]["limit"] = max($this->relations[$fieldName]["limit"], $this->relations[$parent]["limit"]);
                         }
+                        else if ($relation instanceof HasMany) {
+                            $this->relations[$fieldName]["limit"] = $this->relations[$fieldName]["limit"] * $this->relations[$parent]["limit"];
+                        }
                     }
                     else {
 
@@ -473,6 +474,13 @@ class RequestParser
 
                         if (isset($keyField) && !in_array($keyField, $this->fields)) {
                             $this->fields[] = $keyField;
+                        }
+
+                        if ($relation instanceof BelongsTo) {
+                            $this->relations[$fieldName]["limit"] = max($this->relations[$fieldName]["limit"], $this->limit);
+                        }
+                        else if ($relation instanceof HasMany) {
+                            $this->relations[$fieldName]["limit"] = $this->relations[$fieldName]["limit"] * $this->limit;
                         }
                     }
 
