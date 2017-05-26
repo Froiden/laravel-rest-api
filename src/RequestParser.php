@@ -438,6 +438,7 @@ class RequestParser
                         $parent = implode(".", $fieldParts);
 
                         if ($relation instanceof HasOne || $relation instanceof HasMany) {
+                            // For hasMany and HasOne, the foreign key is in current relation table, not in parent
                             $this->relations[$fieldName]["fields"][] = $singular;
                         }
                         else {
