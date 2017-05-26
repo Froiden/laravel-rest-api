@@ -437,20 +437,25 @@ class RequestParser
 
                         $parent = implode(".", $fieldParts);
 
-                        // The parent might already been set because we cannot rely on order
-                        // in which user sends relations in request
-                        if (!isset($this->relations[$parent])) {
-                            $this->relations[$parent] = [
-                                "limit" => config("api.defaultLimit"),
-                                "offset" => 0,
-                                "order" => "chronological",
-                                "fields" => isset($singular) ? [$singular] : [] ,
-                                "userSpecifiedFields" => true
-                            ];
+                        if ($relation instanceof HasOne || $relation instanceof HasMany) {
+                            $this->relations[$fieldName]["fields"][] = $singular;
                         }
                         else {
-                            if (isset($singular)) {
-                                $this->relations[$parent]["fields"][] = $singular;
+                            // The parent might already been set because we cannot rely on order
+                            // in which user sends relations in request
+                            if (!isset($this->relations[$parent])) {
+                                $this->relations[$parent] = [
+                                    "limit" => config("api.defaultLimit"),
+                                    "offset" => 0,
+                                    "order" => "chronological",
+                                    "fields" => isset($singular) ? [$singular] : [],
+                                    "userSpecifiedFields" => true
+                                ];
+                            }
+                            else {
+                                if (isset($singular)) {
+                                    $this->relations[$parent]["fields"][] = $singular;
+                                }
                             }
                         }
 
