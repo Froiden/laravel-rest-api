@@ -410,9 +410,9 @@ class ApiController extends \Illuminate\Routing\Controller
                         // to make them work
                         $innerQuery = $q->getQuery();
                         $innerQuery->select($fields);
-                        $innerQuery->selectRaw("@currcount := IF(@currvalue = " . $q->getForeignKey() . ", @currcount + 1, 1) AS rank");
-                        $innerQuery->selectRaw("@currvalue := " . $q->getForeignKey() . " AS whatever");
-                        $innerQuery->orderBy($q->getForeignKey(), ($relation["order"] == "chronological") ? "ASC" : "DESC");
+                        $innerQuery->selectRaw("@currcount := IF(@currvalue = " . $q->getQualifiedForeignKeyName() . ", @currcount + 1, 1) AS rank");
+                        $innerQuery->selectRaw("@currvalue := " . $q->getQualifiedForeignKeyName() . " AS whatever");
+                        $innerQuery->orderBy($q->getQualifiedForeignKeyName(), ($relation["order"] == "chronological") ? "ASC" : "DESC");
 
                         // Inner Join causes issues when a relation for parent does not exist.
                         // So, we change it to right join for this query
@@ -424,8 +424,8 @@ class ApiController extends \Illuminate\Routing\Controller
 
                         $q->select($fields)
                             ->join(\DB::raw("(" . $outerQuery->toSql() . ") as `outer_query`"), function ($join) use($q) {
-                                $join->on("outer_query.id", "=", $q->getOtherKey());
-                                $join->on("outer_query.whatever", "=", $q->getForeignKey());
+                                $join->on("outer_query.id", "=", $q->getQualifiedRelatedKeyName ());
+                                $join->on("outer_query.whatever", "=", $q->getQualifiedForeignKeyName());
                             })
                             ->setBindings(array_merge($q->getQuery()->getBindings(), $outerQuery->getBindings()))
                             ->where("rank", "<=", $relation["limit"] + $relation["offset"])
@@ -435,7 +435,7 @@ class ApiController extends \Illuminate\Routing\Controller
                         // We need to select foreign key so that Laravel can match to which records these
                         // need to be attached
                         if ($q instanceof BelongsTo) {
-                            $fields[] = $q->getOtherKey();
+                            $fields[] = $q->getOwnerKey();
 
                             if (strpos($key, ".") !== false) {
                                 $parts = explode(".", $key);
@@ -445,15 +445,15 @@ class ApiController extends \Illuminate\Routing\Controller
                             }
                         }
                         else if ($q instanceof HasOne) {
-                            $fields[] = $q->getForeignKey();
+                            $fields[] = $q->getQualifiedForeignKeyName();
 
                             // This will be used to hide this foreign key field
                             // in the processAppends function later
-                            $relations[$key]["foreign"] = $q->getForeignKey();
+                            $relations[$key]["foreign"] = $q->getQualifiedForeignKeyName();
                         }
                         else if ($q instanceof HasMany) {
-                            $fields[] = $q->getForeignKey();
-                            $relations[$key]["foreign"] = $q->getForeignKey();
+                            $fields[] = $q->getQualifiedForeignKeyName();
+                            $relations[$key]["foreign"] = $q->getQualifiedForeignKeyName();
 
                             $q->orderBy($primaryKey, ($relation["order"] == "chronological") ? "ASC" : "DESC");
                         }
