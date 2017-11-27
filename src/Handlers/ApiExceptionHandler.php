@@ -52,7 +52,12 @@ class ApiExceptionHandler extends Handler
                     else {
                         $parts = explode(".", $result[1]);
 
-                        return ApiResponse::exception(new UnknownFieldException("Field '" . $parts[1] . "' does not exist", $e));
+                        if (count($parts) > 1) {
+                            return ApiResponse::exception(new UnknownFieldException("Field '" . $parts[1] . "' does not exist", $e));
+                        }
+                        else {
+                            return ApiResponse::exception(new UnknownFieldException("Field '" . $result . "' does not exist", $e));
+                        }
                     }
                 }
                 else {
