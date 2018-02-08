@@ -369,8 +369,35 @@ class ApiModel extends Model
                     }
 
                     if ($val !== null) {
-                        $relatedIds[] = $model->getKey();
-                    }
+                       if(sizeof($val) > 1) {
+                            // We have additional fields other than primary key
+                            // that need to be saved to pivot table
+                            /*
+                                [
+                                    {
+                                        "id": 12, // Primary key
+                                        "count":"8" // Pivot table column
+                                    },
+                                    {
+                                        "id": 10,
+                                        "count":"8"
+                                    }
+                                
+                                ]
+                             */
+                            foreach($val as $key => $value) {
+                                if($primaryKey == $key){
+                                    continue;
+                                }
+
+                                $relatedIds[$model->getKey()][$key] = $value;
+                            }
+                       }
+                       else {
+                            // We just have ids
+                            $relatedIds[] = $model->getKey();
+                       }
+                   }
                 }
 
                 $relation->sync($relatedIds);
