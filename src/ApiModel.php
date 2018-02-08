@@ -368,8 +368,26 @@ class ApiModel extends Model
                         }
                     }
 
-                    if ($val !== null) {
-                        $relatedIds[] = $model->getKey();
+                     if ($val !== null) {
+                        if(isset($val['pivot'])) {
+                             // We have additional fields other than primary key
+                             // that need to be saved to pivot table
+                             /*
+                                 [
+                                     {
+                                         "id": 12, // Primary key
+                                         "pivot": {
+                                             "count": 8 // Pivot table column
+                                         }
+                                     }
+                                 ]
+                              */
+                             $relatedIds[$model->getKey()] = $val['pivot'];
+                        }
+                        else {
+                             // We just have ids
+                             $relatedIds[] = $model->getKey();
+                        }
                     }
                 }
 
