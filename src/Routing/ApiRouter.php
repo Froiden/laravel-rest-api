@@ -55,7 +55,7 @@ class ApiRouter extends Router
      * @param  \Closure|array|string|null  $action
      * @return \Illuminate\Routing\Route
      */
-    protected function addRoute($methods, $uri, $action)
+    public function addRoute($methods, $uri, $action)
     {
         // We do not keep routes in ApiRouter. Whenever a route is added,
         // we add it to Laravel's primary route collection

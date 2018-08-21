@@ -18,8 +18,7 @@ class ApiExceptionHandler extends Handler
 
     public function render($request, \Exception $e)
     {
-        $debug = env("APP_DEBUG");
-
+        $debug = config('app.debug');
         if (!$debug) {
             if ($e instanceof HttpResponseException || $e instanceof \Illuminate\Validation\ValidationException) {
                 if ($e->getResponse()->getStatusCode() == 403) {
