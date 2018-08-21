@@ -22,11 +22,11 @@ class ApiExceptionHandler extends Handler
 
         if (!$debug) {
             if ($e instanceof HttpResponseException || $e instanceof \Illuminate\Validation\ValidationException) {
-                if ($e->getResponse()->getStatusCode() == 403) {
+                if ($e->status == 403) {
                     return ApiResponse::exception(new UnauthorizedException());
                 }
                 else {
-                    return ApiResponse::exception(new ValidationException(json_decode($e->getResponse()->getContent(), true)));
+                    return ApiResponse::exception(new ValidationException($e->errors()));
                 }
             }
             else if ($e instanceof NotFoundHttpException) {
