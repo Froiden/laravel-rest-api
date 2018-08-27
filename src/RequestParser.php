@@ -429,7 +429,7 @@ class RequestParser
                             $singular = $relation->getForeignKey();
                         }
                         else if ($relation instanceof HasOne || $relation instanceof HasMany) {
-                            $singular = explode('.', $relation->getForeignKey())[1];
+                            $singular = $relation->getForeignKeyName();
                         }
 
                         // Unset last element of array
