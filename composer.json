@@ -3,7 +3,7 @@
     "description": "Powerful RestAPI plugin for Laravel",
     "type": "library",
     "require": {
-        "laravel/framework": "5.6.*"
+        "laravel/framework": "5.7.*"
     },
     "license": "MIT",
     "autoload": {
