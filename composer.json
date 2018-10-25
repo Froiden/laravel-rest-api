@@ -1,6 +1,6 @@
 {
     "name": "froiden/laravel-rest-api",
-    "description": "Powerful RestAPI plugin for Laravel",
+    "description": "Powerful RestAPI plugin for Laravel framework",
     "type": "library",
     "require": {
         "laravel/framework": "^5.6.*"
