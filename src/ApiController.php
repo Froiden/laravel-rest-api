@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Froiden\RestAPI\ExtendedRelations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -424,7 +424,7 @@ class ApiController extends \Illuminate\Routing\Controller
 
                         $q->select($fields)
                             ->join(\DB::raw("(" . $outerQuery->toSql() . ") as `outer_query`"), function ($join) use($q) {
-                                $join->on("outer_query.id", "=", $q->getQualifiedRelatedPivotKeyName ());
+                                $join->on("outer_query." . $q->getRelatedKeyName(), "=", $q->getQualifiedRelatedPivotKeyName ());
                                 $join->on("outer_query.whatever", "=", $q->getQualifiedForeignPivotKeyName());
                             })
                             ->setBindings(array_merge($q->getQuery()->getBindings(), $outerQuery->getBindings()))
