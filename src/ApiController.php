@@ -274,7 +274,7 @@ class ApiController extends \Illuminate\Routing\Controller
         }
 
         if(method_exists($this, 'destroying')) {
-            $object = call_user_func([$this, 'destroyed'], $object);
+            $object = call_user_func([$this, 'destroying'], $object);
         }
 
         $object->delete();
