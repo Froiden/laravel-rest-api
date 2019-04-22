@@ -1,5 +1,5 @@
 {
-    "name": "froiden/laravel-rest-api",
+    "name": "whtht/laravel-rest-api",
     "description": "Powerful RestAPI plugin for Laravel framework",
     "type": "library",
     "require": {
