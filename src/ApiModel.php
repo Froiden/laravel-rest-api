@@ -265,7 +265,7 @@ class ApiModel extends Model
                         }
                     }
 
-                    $relationKey = $relation->getForeignKey();
+                    $relationKey = $relation->getForeignKeyName();
 
                     $this->setAttribute($relationKey, ($attribute === null) ? null : $model->getKey());
                 }
@@ -302,7 +302,7 @@ class ApiModel extends Model
                     }
                 }
 
-                $relationKey = $relation->getForeignKey();
+                $relationKey = $relation->getForeignKeyName();
 
                 $this->setAttribute($relationKey, ($relationAttribute === null) ? null : $model->getKey());
 

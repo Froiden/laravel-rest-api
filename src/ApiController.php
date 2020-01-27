@@ -435,7 +435,7 @@ class ApiController extends \Illuminate\Routing\Controller
                         // We need to select foreign key so that Laravel can match to which records these
                         // need to be attached
                         if ($q instanceof BelongsTo) {
-                            $fields[] = $q->getOwnerKey();
+                            $fields[] = $q->getOwnerKeyName();
 
                             if (strpos($key, ".") !== false) {
                                 $parts = explode(".", $key);

@@ -426,7 +426,7 @@ class RequestParser
                         $fieldParts = explode(".", $fieldName);
 
                         if ($relation instanceof BelongsTo) {
-                            $singular = $relation->getForeignKey();
+                            $singular = $relation->getForeignKeyName();
                         }
                         else if ($relation instanceof HasOne || $relation instanceof HasMany) {
                             $singular = $relation->getForeignKeyName();
@@ -475,7 +475,7 @@ class RequestParser
                             $keyField = explode(".", $relation->getQualifiedParentKeyName())[1];
                         }
                         else if ($relation instanceof BelongsTo) {
-                            $keyField = explode(".", $relation->getQualifiedForeignKey())[1];
+                            $keyField = explode(".", $relation->getQualifiedForeignKeyName())[1];
                         }
 
                         if (isset($keyField) && !in_array($keyField, $this->fields)) {
