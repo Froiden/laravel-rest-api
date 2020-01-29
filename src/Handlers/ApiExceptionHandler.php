@@ -19,7 +19,11 @@ class ApiExceptionHandler extends Handler
     public function render($request, \Exception $e)
     {
         $debug = config('app.debug');
-        if (!$debug) {
+        $prefix = config("api.prefix");
+        // Check if prefix is set and use that debug
+        // This is done to prevent default error message show in otherwise application 
+        // which are not using the api
+        if (!$debug && $request->is($prefix.'/*')) {
             if ($e instanceof HttpResponseException || $e instanceof \Illuminate\Validation\ValidationException) {
                 if ($e->status == 403) {
                     return ApiResponse::exception(new UnauthorizedException());
@@ -42,7 +46,7 @@ class ApiExceptionHandler extends Handler
                 return ApiResponse::exception($e);
             }
             else if ($e instanceof QueryException) {
-                if ($e->getCode() == "42S22") {
+                if ($e->getCode() == "422") {
                     preg_match("/Unknown column \\'([^']+)\\'/", $e->getMessage(), $result);
 
                     if (!isset($result[1])) {
