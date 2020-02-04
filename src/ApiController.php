@@ -131,7 +131,7 @@ class ApiController extends \Illuminate\Routing\Controller
             $this->table = call_user_func([new $this->model(), "getTable"]);
         }
 
-        if (env("APP_DEBUG") == true) {
+        if (config('app.debug') == true) {
             \DB::enableQueryLog();
         }
     }
@@ -697,7 +697,7 @@ class ApiController extends \Illuminate\Routing\Controller
 
         $meta["time"] = round(microtime(true) - $this->processingStartTime, 3);
 
-        if (env("APP_DEBUG") == true) {
+        if (config('app.debug') == true) {
             $log = \DB::getQueryLog();
             \DB::disableQueryLog();
 
