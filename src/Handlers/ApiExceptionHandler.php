@@ -10,18 +10,19 @@ use Froiden\RestAPI\Exceptions\UnauthorizedException;
 use Froiden\RestAPI\Exceptions\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Exception\HttpResponseException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class ApiExceptionHandler extends Handler
 {
 
-    public function render($request, \Exception $e)
+    public function render($request, Throwable $e)
     {
         $debug = config('app.debug');
         $prefix = config("api.prefix");
         // Check if prefix is set and use that debug
-        // This is done to prevent default error message show in otherwise application 
+        // This is done to prevent default error message show in otherwise application
         // which are not using the api
         if (!$debug && $request->is($prefix.'/*')) {
             if ($e instanceof HttpResponseException || $e instanceof \Illuminate\Validation\ValidationException) {
