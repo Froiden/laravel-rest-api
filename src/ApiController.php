@@ -633,7 +633,7 @@ class ApiController extends \Illuminate\Routing\Controller
 
                             // Hide the foreign key fields
                             if (!empty($foreign)) {
-                                $item->addHidden($foreign);
+                                $item->makeHidden($foreign);
                             }
                         });
 
@@ -643,7 +643,7 @@ class ApiController extends \Illuminate\Routing\Controller
                         $model->$key->setAppends($appends);
 
                         if (!empty($foreign)) {
-                            $model->$key->addHidden($foreign);
+                            $model->$key->makeHidden($foreign);
                         }
 
                         $this->processAppends(collect($model->$key), $key);
