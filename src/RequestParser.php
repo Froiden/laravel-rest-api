@@ -392,7 +392,7 @@ class RequestParser
                     $fieldName = str_replace(":", ".", $fieldName);
 
                     // Check if relation name in modal is in camel case then convert relation name in camel case
-                    if(config("api.relation_case", 'snackCase') === 'camelCase'){
+                    if(config("api.relation_case", 'snackcase') === 'camelcase'){
                         $fieldName = \Str::camel($fieldName);
                     }
 

@@ -40,7 +40,7 @@ return [
     'default_version' => 'v1',
 
     /**
-     * Relation method name case snackCase|camelCase default it is snack case
+     * Relation method name case snackcase|camelcase default it is snack case
      */
-    'relationCase' => 'snackCase'
+    'relationCase' => 'snackcase'
 ];
