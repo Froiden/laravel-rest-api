@@ -391,10 +391,6 @@ class RequestParser
 
                     $fieldName = str_replace(":", ".", $fieldName);
 
-                    if(config("api.relation_case", 'snackCase') === 'camelCase'){
-                        $fieldName = \Str::camel($fieldName);
-                    }
-
                     if (!isset($this->relations[$fieldName])) {
                         $this->relations[$fieldName] = [
                             "limit" => $limit,
