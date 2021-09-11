@@ -37,5 +37,10 @@ return [
     /**
      * Default version for the API. Set null to disable versions
      */
-    'default_version' => 'v1'
+    'default_version' => 'v1',
+
+    /**
+     * Relation method name case snackCase|camelCase default it is snack case
+     */
+    'relationCase' => 'snackCase'
 ];
