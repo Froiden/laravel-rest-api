@@ -125,6 +125,10 @@ class ApiModel extends Model
      */
     public static function relationExists($relation)
     {
+        // Check if relation name in modal is in camel case or not
+        if (config("api.relation_case", 'snackCase') === 'camelCase') {
+            return (method_exists(new static(), $relation) ?? false) || (method_exists(new static(), \Str::camel($relation)) ?? false);
+        }
         return method_exists(new static(), $relation);
     }
 
