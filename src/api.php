@@ -42,5 +42,5 @@ return [
     /**
      * Relation method name case snakecase|camelcase default it is snake case
      */
-    'relationCase' => 'snakecase'
+    'relation_case' => 'snakecase'
 ];
