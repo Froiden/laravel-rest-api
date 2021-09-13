@@ -40,7 +40,7 @@ return [
     'default_version' => 'v1',
 
     /**
-     * Relation method name case snakecase|camelcase default it is snake case
+     * Relation method name case snakecase|camelcase default it is snakecase
      */
     'relation_case' => 'snakecase'
 ];
