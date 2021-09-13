@@ -391,6 +391,11 @@ class RequestParser
 
                     $fieldName = str_replace(":", ".", $fieldName);
 
+                    // Check if relation name in modal is in camel case then convert relation name in camel case
+                    if(config("api.relation_case", 'snakecase') === 'camelcase'){
+                        $fieldName = \Str::camel($fieldName);
+                    }
+
                     if (!isset($this->relations[$fieldName])) {
                         $this->relations[$fieldName] = [
                             "limit" => $limit,
