@@ -6,8 +6,11 @@ use App\Exceptions\Handler;
 use Froiden\RestAPI\ApiResponse;
 use Froiden\RestAPI\Exceptions\ApiException;
 use Froiden\RestAPI\Exceptions\Parse\UnknownFieldException;
+use Froiden\RestAPI\Exceptions\UnauthenticatedException;
+use Froiden\RestAPI\Exceptions\UnauthenticationException;
 use Froiden\RestAPI\Exceptions\UnauthorizedException;
 use Froiden\RestAPI\Exceptions\ValidationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -25,6 +28,12 @@ class ApiExceptionHandler extends Handler
         // This is done to prevent default error message show in otherwise application
         // which are not using the api
         if (!$debug && $request->is($prefix.'/*')) {
+
+            // When the user is not authenticated or logged show this message with status code 401
+            if ($e instanceof AuthenticationException) {
+                return ApiResponse::exception(new UnauthenticationException());
+            }
+
             if ($e instanceof HttpResponseException || $e instanceof \Illuminate\Validation\ValidationException) {
                 if ($e->status == 403) {
                     return ApiResponse::exception(new UnauthorizedException());
