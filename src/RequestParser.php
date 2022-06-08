@@ -491,7 +491,8 @@ class RequestParser
                             $this->relations[$fieldName]["limit"] = max($this->relations[$fieldName]["limit"], $this->limit);
                         }
                         else if ($relation instanceof HasMany) {
-                            $this->relations[$fieldName]["limit"] = $this->relations[$fieldName]["limit"] * $this->limit;
+                            // Commented out for third level hasmany limit
+                           // $this->relations[$fieldName]["limit"] = $this->relations[$fieldName]["limit"] * $this->limit;
                         }
                     }
 
