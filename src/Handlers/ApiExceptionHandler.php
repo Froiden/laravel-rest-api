@@ -24,10 +24,12 @@ class ApiExceptionHandler extends Handler
     {
         $debug = config('app.debug');
         $prefix = config("api.prefix");
+
         // Check if prefix is set and use that debug
         // This is done to prevent default error message show in otherwise application
         // which are not using the api
-        if (!$debug && $request->is($prefix.'/*')) {
+
+        if ($request->is($prefix . '/*')) {
 
             // When the user is not authenticated or logged show this message with status code 401
             if ($e instanceof AuthenticationException) {
@@ -38,52 +40,50 @@ class ApiExceptionHandler extends Handler
                 if ($e->status == 403) {
                     return ApiResponse::exception(new UnauthorizedException());
                 }
-                else {
-                    return ApiResponse::exception(new ValidationException($e->errors()));
-                }
+                return ApiResponse::exception(new ValidationException($e->errors()));
             }
-            else if ($e instanceof NotFoundHttpException) {
+
+            if ($e instanceof NotFoundHttpException) {
                 return ApiResponse::exception(new ApiException('This api endpoint does not exist', null, 404, 404, 2005, [
-                        'url' => request()->url()
-                    ]));
+                    'url' => request()->url()
+                ]));
             }
-            else if ($e instanceof ModelNotFoundException) {
+
+            if ($e instanceof ModelNotFoundException) {
                 return ApiResponse::exception(new ApiException('Requested resource not found', null, 404, 404, null, [
-                        'url' => request()->url()
-                    ]));
+                    'url' => request()->url()
+                ]));
             }
-            else if ($e instanceof ApiException) {
+
+            if ($e instanceof ApiException) {
                 return ApiResponse::exception($e);
             }
-            else if ($e instanceof QueryException) {
+
+            if ($e instanceof QueryException) {
                 if ($e->getCode() == "422") {
                     preg_match("/Unknown column \\'([^']+)\\'/", $e->getMessage(), $result);
 
                     if (!isset($result[1])) {
                         return ApiResponse::exception(new UnknownFieldException(null, $e));
                     }
-                    else {
-                        $parts = explode(".", $result[1]);
 
-                        if (count($parts) > 1) {
-                            return ApiResponse::exception(new UnknownFieldException("Field '" . $parts[1] . "' does not exist", $e));
-                        }
-                        else {
-                            return ApiResponse::exception(new UnknownFieldException("Field '" . $result . "' does not exist", $e));
-                        }
-                    }
+                    $parts = explode(".", $result[1]);
+
+                    $field = count($parts) > 1 ? $parts[1] : $result;
+
+                    return ApiResponse::exception(new UnknownFieldException("Field '" . $field . "' does not exist", $e));
+
                 }
-                else {
-                    return ApiResponse::exception(new ApiException(null, $e));
-                }
-            }
-            else {
-                return ApiResponse::exception(new ApiException(null, $e));
+
             }
         }
-        else {
-            return parent::render($request, $e);
-        }
+
+        // When Debug is on move show error here
+        $response['trace'] = $e->getTrace();
+        $response['code'] = $e->getCode();
+
+        return ApiResponse::exception(new ApiException(null, null, 500, 500, null, $response));
 
     }
+
 }
