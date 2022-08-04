@@ -91,7 +91,7 @@ class ApiRouter extends Router
                 $route->prefix($prefix);
             }
 
-            $routes->add($route);
+//             $routes->add($route);
 
             // Options route
             $route = $this->createRoute(['OPTIONS'], $uri, ['uses' => '\Froiden\RestAPI\Routing\ApiRouter@returnRoute']);
