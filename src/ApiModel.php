@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Str;
 
 class ApiModel extends Model
 {
@@ -127,7 +128,7 @@ class ApiModel extends Model
     {
         // Check if relation name in modal is in camel case or not
         if (config("api.relation_case", 'snakecase') === 'camelcase') {
-            return (method_exists(new static(), $relation) ?? false) || (method_exists(new static(), \Str::camel($relation)) ?? false);
+            return (method_exists(new static(), $relation) ?? false) || (method_exists(new static(), Str::camel($relation)) ?? false);
         }
         return method_exists(new static(), $relation);
     }
