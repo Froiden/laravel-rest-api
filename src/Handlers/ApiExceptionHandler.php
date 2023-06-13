@@ -77,10 +77,15 @@ class ApiExceptionHandler extends Handler
 
             }
             // When Debug is on move show error here
-            $response['trace'] = $e->getTrace();
-            $response['code'] = $e->getCode();
+            $message =  null;
 
-            return ApiResponse::exception(new ApiException(null, null, 500, 500, null, $response));
+            if($debug){
+                $response['trace'] = $e->getTrace();
+                $response['code'] = $e->getCode();
+                $message = $e->getMessage();
+            }
+
+            return ApiResponse::exception(new ApiException($message, null, 500, 500, null, $response));
         }
         
         return parent::render($request, $e);
