@@ -88,6 +88,7 @@ class ApiException extends \Exception implements \JsonSerializable, Jsonable
     public function jsonSerialize()
     {
         $jsonArray = [
+            "message" => $this->getMessage(),
             "error" => [
                 "message" => $this->getMessage(),
                 "code" => $this->getCode()
