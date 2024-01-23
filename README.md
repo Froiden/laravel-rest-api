@@ -12,7 +12,7 @@ For full documentation please refer to [plugin's wiki](https://github.com/Froide
 This package is in its very early phase. We would love your feedback, issue reports and contributions. Many things are missing, like, tests, many bugs are there and many new features need to be implemented. So, if you find this useful, please contribute.
 
 ## 💰 Sponsor
-I fell in love with open-source in 2012 and there has been no looking back since! You can read more about me [here][website].
+I fell in love with open-source in 2012 and there has been no looking back since! You can read more about me [Froiden][https://froiden.com].
 
 - ☕ How about we get to know each other over coffee? Buy me a cup for just [**$5**][buymeacoffee]
 
