@@ -72,14 +72,14 @@ class ApiExceptionHandler extends Handler
                     $field = count($parts) > 1 ? $parts[1] : $result;
 
                     return ApiResponse::exception(new UnknownFieldException("Field '" . $field . "' does not exist", $e));
-
                 }
-
             }
-            // When Debug is on move show error here
-            $message =  null;
 
-            if($debug){
+            // When Debug is on move show error here
+            $message = null;
+            $response = []; // Fix: Define variable before use
+
+            if ($debug) {
                 $response['trace'] = $e->getTrace();
                 $response['code'] = $e->getCode();
                 $message = $e->getMessage();
@@ -92,5 +92,3 @@ class ApiExceptionHandler extends Handler
     }
 
 }
-
-
