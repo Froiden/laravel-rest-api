@@ -3,11 +3,7 @@
 namespace Froiden\RestAPI\Routing;
 
 use Closure;
-use Froiden\RestAPI\Exceptions\ApiException;
 use Froiden\RestAPI\Middleware\ApiMiddleware;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Routing\ResourceRegistrar;
 use Illuminate\Routing\Router;
 
 class ApiRouter extends Router
@@ -21,18 +17,15 @@ class ApiRouter extends Router
      * @param  string  $name
      * @param  string  $controller
      * @param  array  $options
-     * @return void
+     * @return \Illuminate\Routing\RouteCollection|void
      */
     public function resource($name, $controller, array $options = [])
     {
-        if ($this->container && $this->container->bound('Froiden\RestAPI\Routing\ApiResourceRegistrar')) {
-            $registrar = $this->container->make('Froiden\RestAPI\Routing\ApiResourceRegistrar');
-        }
-        else {
-            $registrar = new ResourceRegistrar($this);
-        }
+        $registrar = ($this->container && $this->container->bound(ApiResourceRegistrar::class))
+            ? $this->container->make(ApiResourceRegistrar::class)
+            : new ApiResourceRegistrar($this);
 
-        $registrar->register($name, $controller, $options);
+        return $registrar->register($name, $controller, $options);
     }
 
     public function version($versions, Closure $callback)
@@ -53,7 +46,7 @@ class ApiRouter extends Router
      * @param  array|string  $methods
      * @param  string  $uri
      * @param  \Closure|array|string|null  $action
-     * @return \Illuminate\Routing\Route
+     * @return \Illuminate\Routing\Route|null
      */
     public function addRoute($methods, $uri, $action)
     {
@@ -77,6 +70,8 @@ class ApiRouter extends Router
 
 
         // Add version prefix
+        $registeredRoute = null;
+
         foreach ($versions as $version) {
             // Add ApiMiddleware to all routes
             $route = $this->createRoute($methods, $uri, $action);
@@ -91,27 +86,15 @@ class ApiRouter extends Router
                 $route->prefix($prefix);
             }
 
-//             $routes->add($route);
-
-            // Options route
-           // $route = $this->createRoute(['OPTIONS'], $uri, ['uses' => '\Froiden\RestAPI\Routing\ApiRouter@returnRoute']);
-
-//             $route->middleware(ApiMiddleware::class);
-
-//             if ($version !== null) {
-//                 $route->prefix($version);
-//                 $route->name("." . $version);
-//             }
-
-//             if (!empty($prefix)) {
-//                 $route->prefix($prefix);
-//             }
-
             $routes->add($route);
+            $registeredRoute = $route;
         }
 
         app("router")->setRoutes($routes);
+
+        return $registeredRoute;
     }
+
     public function returnRoute()
     {
         return [];
