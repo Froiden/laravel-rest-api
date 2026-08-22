@@ -409,6 +409,7 @@ class ApiController extends \Illuminate\Routing\Controller
                         // together, limit and offset do not work. So, we have to complicate things
                         // to make them work
                         $innerQuery = $q->getQuery();
+                        $fields = array_values(array_unique($fields));
                         $innerQuery->select($fields);
                         $innerQuery->selectRaw("@currcount := IF(@currvalue = " . $q->getQualifiedForeignPivotKeyName() . ", @currcount + 1, 1) AS rank");
                         $innerQuery->selectRaw("@currvalue := " . $q->getQualifiedForeignPivotKeyName() . " AS whatever");
@@ -457,6 +458,8 @@ class ApiController extends \Illuminate\Routing\Controller
 
                             $q->orderBy($primaryKey, ($relation["order"] == "chronological") ? "ASC" : "DESC");
                         }
+
+                        $fields = array_values(array_unique($fields));
 
                         $q->select($fields);
 
